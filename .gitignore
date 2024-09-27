@@ -1,0 +1,30 @@
+# vscode
+.vscode 
+
+# Intellij
+*.iml
+.idea
+
+# npm
+node_modules
+
+# Don't include the compiled main.js file in the repo.
+# They should be uploaded to GitHub releases instead.
+main.js
+
+# Exclude sourcemaps
+*.map
+
+# obsidian
+data.json
+
+.DS_Store
+/node_modules
+/.editorconfig
+/.eslintignore
+/.eslintrc
+/esbuild.config.mjs
+/main.js
+/package-lock.json
+/version-bump.mjs
+.npmrc

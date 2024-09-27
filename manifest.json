@@ -1,0 +1,11 @@
+{
+	"id": "JustAnotherHotkeyPlugin",
+	"name": "Just Another Hotkey Plugin",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "New Hotkeys",
+	"author": "Obsidian",
+	"authorUrl": "https://github.com/chern-kp",
+	"fundingUrl": "https://github.com/chern-kp",
+	"isDesktopOnly": true
+}

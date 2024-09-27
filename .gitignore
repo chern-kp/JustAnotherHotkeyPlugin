@@ -23,7 +23,6 @@ data.json
 /.editorconfig
 /.eslintignore
 /.eslintrc
-/esbuild.config.mjs
 /main.js
 /package-lock.json
 /version-bump.mjs

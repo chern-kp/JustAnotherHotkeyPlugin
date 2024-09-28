@@ -2,7 +2,7 @@
 import { Editor, Notice, Plugin } from 'obsidian';
 
 interface JustAnotherHotkeyPluginSettings {
-	
+
 }
 
 const DEFAULT_SETTINGS: JustAnotherHotkeyPluginSettings = {
@@ -14,7 +14,6 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// Existing commands
 		this.addCommand({
 			id: 'select-to-next-heading',
 			name: 'Select to Next Heading',
@@ -96,6 +95,33 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 					{
 						modifiers: ['Alt', 'Shift'],
 						key: `${level}`,
+					},
+				],
+			});
+
+			this.addCommand({
+				id: 'select-link-display-text',
+				name: 'Select Link Display Text',
+				editorCallback: (editor: Editor) => {
+					this.selectLinkDisplayText(editor);
+				},
+				hotkeys: [
+					{
+						modifiers: ['Mod'],
+						key: '\\',
+					},
+				],
+			});
+			this.addCommand({
+				id: 'select-link-without-display-text',
+				name: 'Select Link Without Display Text',
+				editorCallback: (editor: Editor) => {
+					this.selectLinkWithoutDisplayText(editor);
+				},
+				hotkeys: [
+					{
+						modifiers: ['Mod', 'Shift'],
+						key: '\\',
 					},
 				],
 			});
@@ -339,7 +365,6 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 		if (foundHeadingLine !== -1) {
 			const lineText = editor.getLine(foundHeadingLine);
-			// Move cursor to the end of the heading line
 			editor.setCursor({ line: foundHeadingLine, ch: lineText.length });
 		} else {
 			new Notice(`No further heading level ${level} found.`);
@@ -370,4 +395,103 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			new Notice(`No previous heading level ${level} found.`);
 		}
 	}
+
+	selectLinkDisplayText(editor: Editor) {
+		const cursor = editor.getCursor();
+		const lineText = editor.getLine(cursor.line);
+
+		const linkRegex = /\[\[([^\]]+)\]\]/g;
+		let match;
+		let found = false;
+
+		while ((match = linkRegex.exec(lineText)) !== null) {
+			const start = match.index;
+			const end = linkRegex.lastIndex;
+
+			if (cursor.ch >= start && cursor.ch <= end) {
+				const linkContent = match[1];
+				const pipeIndex = linkContent.indexOf('|');
+
+				if (pipeIndex !== -1) {
+					const fromPos = {
+						line: cursor.line,
+						ch: start + 2 + pipeIndex + 1,
+					};
+					const toPos = {
+						line: cursor.line,
+						ch: end - 2,
+					};
+					editor.setSelection(fromPos, toPos);
+				} else {
+
+					const newLinkContent = linkContent + '|';
+					const newLineText = lineText.substring(0, start + 2) + newLinkContent + lineText.substring(end - 2);
+					editor.setLine(cursor.line, newLineText);
+
+					const cursorPos = {
+						line: cursor.line,
+						ch: start + 2 + newLinkContent.length,
+					};
+					editor.setCursor(cursorPos);
+				}
+
+				found = true;
+				break;
+			}
+		}
+
+		if (!found) {
+			new Notice('Cursor is not inside or near a link.');
+		}
+	}
+
+	selectLinkWithoutDisplayText(editor: Editor) {
+		const cursor = editor.getCursor();
+		const lineText = editor.getLine(cursor.line);
+
+		const linkRegex = /\[\[([^\]]+)\]\]/g;
+		let match;
+		let found = false;
+
+		while ((match = linkRegex.exec(lineText)) !== null) {
+			const start = match.index;
+			const end = linkRegex.lastIndex;
+
+
+			if (cursor.ch >= start && cursor.ch <= end) {
+				const linkContent = match[1];
+				const pipeIndex = linkContent.indexOf('|');
+
+				if (pipeIndex !== -1) {
+					const fromPos = {
+						line: cursor.line,
+						ch: start + 2,
+					};
+					const toPos = {
+						line: cursor.line,
+						ch: start + 2 + pipeIndex,
+					};
+					editor.setSelection(fromPos, toPos);
+				} else {
+					const fromPos = {
+						line: cursor.line,
+						ch: start + 2,
+					};
+					const toPos = {
+						line: cursor.line,
+						ch: end - 2,
+					};
+					editor.setSelection(fromPos, toPos);
+				}
+
+				found = true;
+				break;
+			}
+		}
+
+		if (!found) {
+			new Notice('Cursor is not inside or near a link.');
+		}
+	}
+
 }

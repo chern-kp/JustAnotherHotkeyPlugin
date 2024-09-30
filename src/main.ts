@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { Editor, Notice, Plugin } from 'obsidian';
+import { registerCommands } from './hotkeys';
+
 
 interface JustAnotherHotkeyPluginSettings {
 
@@ -13,134 +15,8 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+		registerCommands(this);
 
-		this.addCommand({
-			id: 'select-to-next-heading',
-			name: 'Select to Next Heading',
-			editorCallback: (editor: Editor) => {
-				this.selectToNextHeading(editor);
-			},
-			hotkeys: [
-				{
-					modifiers: ['Mod'],
-					key: 's',
-				},
-			],
-		});
-
-		this.addCommand({
-			id: 'select-to-previous-heading',
-			name: 'Select to Previous Heading',
-			editorCallback: (editor: Editor) => {
-				this.selectToPreviousHeading(editor);
-			},
-			hotkeys: [
-				{
-					modifiers: ['Mod', 'Shift'],
-					key: 's',
-				},
-			],
-		});
-
-		this.addCommand({
-			id: 'select-current-heading',
-			name: 'Select Current Heading',
-			editorCallback: (editor: Editor) => {
-				this.selectCurrentHeading(editor);
-			},
-			hotkeys: [
-				{
-					modifiers: ['Mod', 'Alt'],
-					key: 's',
-				},
-			],
-		});
-
-		this.addCommand({
-			id: 'select-all-current-level-headings',
-			name: 'Select All Current Level Headings',
-			editorCallback: (editor: Editor) => {
-				this.selectAllCurrentLevelHeadings(editor);
-			},
-			hotkeys: [
-				{
-					modifiers: ['Mod', 'Shift', 'Alt'],
-					key: 's',
-				},
-			],
-		});
-
-		for (let level = 1; level <= 6; level++) {
-			this.addCommand({
-				id: `move-to-next-heading-level-${level}`,
-				name: `Move to Next Heading Level ${level}`,
-				editorCallback: (editor: Editor) => {
-					this.moveToNextHeading(editor, level);
-				},
-				hotkeys: [
-					{
-						modifiers: ['Alt'],
-						key: `${level}`,
-					},
-				],
-			});
-
-			this.addCommand({
-				id: `move-to-previous-heading-level-${level}`,
-				name: `Move to Previous Heading Level ${level}`,
-				editorCallback: (editor: Editor) => {
-					this.moveToPreviousHeading(editor, level);
-				},
-				hotkeys: [
-					{
-						modifiers: ['Alt', 'Shift'],
-						key: `${level}`,
-					},
-				],
-			});
-
-			this.addCommand({
-				id: 'select-link-display-text',
-				name: 'Select Link Display Text',
-				editorCallback: (editor: Editor) => {
-					this.selectLinkDisplayText(editor);
-				},
-				hotkeys: [
-					{
-						modifiers: ['Mod'],
-						key: '\\',
-					},
-				],
-			});
-			this.addCommand({
-				id: 'select-link-without-display-text',
-				name: 'Select Link Without Display Text',
-				editorCallback: (editor: Editor) => {
-					this.selectLinkWithoutDisplayText(editor);
-				},
-				hotkeys: [
-					{
-						modifiers: ['Mod', 'Shift'],
-						key: '\\',
-					},
-				],
-			});
-
-			this.addCommand({
-				id: 'select-link-content',
-				name: 'Select Link Content',
-				editorCallback: (editor: Editor) => {
-					this.selectLinkContent(editor);
-				},
-				hotkeys: [
-					{
-						modifiers: ['Mod', 'Alt'],
-						key: '\\',
-					},
-				],
-			});
-
-		}
 	}
 
 	onunload() {

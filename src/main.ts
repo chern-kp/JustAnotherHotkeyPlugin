@@ -61,7 +61,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		const cursor = editor.getCursor();
 		const lineText = editor.getLine(cursor.line);
 
-		const linkRegex = /$$([^$]+)$$/g;
+		const linkRegex = /\[\[([^[\]]*(?:\[[^[\]]*\][^[\]]*)*)\]\]/g;
 		let match: RegExpExecArray | null;
 		while ((match = linkRegex.exec(lineText)) !== null) {
 			const start = match.index;
@@ -300,5 +300,27 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		};
 		editor.setSelection(fromPos, toPos);
 	}
+
+	selectFullLink(editor: Editor) {
+		const result = this.findLinkUnderCursor(editor);
+		if (!result) {
+			new Notice('Cursor is not inside or near a link.');
+			return;
+		}
+	
+		const { start, end } = result;
+		const cursor = editor.getCursor();
+	
+		const fromPos = {
+			line: cursor.line,
+			ch: start,
+		};
+		const toPos = {
+			line: cursor.line,
+			ch: end,
+		};
+		editor.setSelection(fromPos, toPos);
+	}
+
 }
 

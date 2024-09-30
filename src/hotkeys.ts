@@ -129,4 +129,18 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
             },
         ],
     });
+
+    plugin.addCommand({
+        id: 'select-full-link',
+        name: 'Select Full Link',
+        editorCallback: (editor: Editor) => {
+            plugin.selectFullLink(editor);
+        },
+        hotkeys: [
+            {
+                modifiers: ['Mod', 'Shift', 'Alt'],
+                key: '\\',
+            },
+        ],
+    });
 }

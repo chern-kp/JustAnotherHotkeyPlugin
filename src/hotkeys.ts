@@ -3,10 +3,10 @@ import JustAnotherHotkeyPlugin from './main';
 
 export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     plugin.addCommand({
-        id: 'select-to-next-heading',
-        name: 'Select to Next Heading',
+        id: 'select-to-end-of-heading',
+        name: 'Select to the End of Current Heading',
         editorCallback: (editor: Editor) => {
-            plugin.selectToNextHeading(editor);
+            plugin.selectToEndOfCurrentHeading(editor);
         },
         hotkeys: [
             {
@@ -17,10 +17,10 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     });
 
     plugin.addCommand({
-        id: 'select-to-previous-heading',
-        name: 'Select to Previous Heading',
+        id: 'select-to-beginning-of-heading',
+        name: 'Select to the Beginning of Current Heading',
         editorCallback: (editor: Editor) => {
-            plugin.selectToPreviousHeading(editor);
+            plugin.selectToBeginningOfCurrentHeading(editor);
         },
         hotkeys: [
             {
@@ -52,7 +52,21 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         },
         hotkeys: [
             {
-                modifiers: ['Mod', 'Shift', 'Alt'],
+                modifiers: ['Mod', 'Alt'],
+                key: 'PageDown',
+            },
+        ],
+    });
+
+    plugin.addCommand({
+        id: 'select-current-and-child-headings',
+        name: 'Select Current and Child Headings',
+        editorCallback: (editor: Editor) => {
+            plugin.selectCurrentAndChildHeadings(editor);
+        },
+        hotkeys: [
+            {
+                modifiers: ['Mod', 'Alt', 'Shift'],
                 key: 's',
             },
         ],
@@ -140,6 +154,34 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
             {
                 modifiers: ['Mod', 'Shift', 'Alt'],
                 key: '\\',
+            },
+        ],
+    });
+
+    plugin.addCommand({
+        id: 'move-heading-up',
+        name: 'Move Heading (with content) Up',
+        editorCallback: (editor: Editor) => {
+            //! plugin.moveHeadingUp(editor);
+        },
+        hotkeys: [
+            {
+                modifiers: ['Alt'],
+                key: 'PageUp',
+            },
+        ],
+    });
+
+    plugin.addCommand({
+        id: 'move-heading-down',
+        name: 'Move Heading (with content) Down',
+        editorCallback: (editor: Editor) => {
+            //! plugin.moveHeadingDown(editor);
+        },
+        hotkeys: [
+            {
+                modifiers: ['Alt'],
+                key: 'PageDown',
             },
         ],
     });

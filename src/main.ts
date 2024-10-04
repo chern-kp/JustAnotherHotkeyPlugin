@@ -73,7 +73,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		return null;
 	}
 
-	selectToNextHeading(editor: Editor) {
+	selectToEndOfCurrentHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const nextHeadingLine = this.findHeadingLine(editor, cursor.line, 'next');
 
@@ -98,24 +98,32 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 
-	selectToPreviousHeading(editor: Editor) {
+	selectToBeginningOfCurrentHeading(editor: Editor) {
 		const cursor = editor.getCursor();
-		const previousHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+		const currentLineText = editor.getLine(cursor.line);
+		const headingMatch = currentLineText.match(/^(#+)\s/);
 
 		const toPos = cursor;
-
 		let fromPos: CodeMirror.Position;
 
-		if (previousHeadingLine !== -1) {
+		if (headingMatch) {
 			fromPos = {
-				line: previousHeadingLine + 1,
+				line: cursor.line,
 				ch: 0,
 			};
 		} else {
-			fromPos = {
-				line: 0,
-				ch: 0,
-			};
+			const currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+			if (currentHeadingLine !== -1) {
+				fromPos = {
+					line: currentHeadingLine,
+					ch: 0,
+				};
+			} else {
+				fromPos = {
+					line: 0,
+					ch: 0,
+				};
+			}
 		}
 
 		editor.setSelection(fromPos, toPos);
@@ -126,7 +134,14 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		const lineCount = editor.lineCount();
 
 		let currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
-		if (currentHeadingLine === -1) currentHeadingLine = cursor.line;
+		if (currentHeadingLine === -1 || currentHeadingLine < cursor.line) {
+			currentHeadingLine = cursor.line;
+		}
+
+		const currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+		if (currentHeadingLevel === null) {
+			currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+		}
 
 		let nextHeadingLine = this.findHeadingLine(editor, currentHeadingLine, 'next');
 		if (nextHeadingLine === -1) nextHeadingLine = lineCount;
@@ -138,6 +153,60 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		};
 
 		editor.setSelection(fromPos, toPos);
+	}
+
+	selectCurrentAndChildHeadings(editor: Editor) {
+		const cursor = editor.getCursor();
+		const lineCount = editor.lineCount();
+
+		let currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+		if (currentHeadingLine === -1 || currentHeadingLine < cursor.line) {
+			currentHeadingLine = cursor.line;
+		}
+
+		const currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+		if (currentHeadingLevel === null) {
+			currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+		}
+
+		if (currentHeadingLine !== -1) {
+			const currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+
+			if (currentHeadingLevel !== null) {
+				let nextHeadingLine = lineCount;
+				for (let i = currentHeadingLine + 1; i < lineCount; i++) {
+					const level = this.getHeadingLevelAtLine(editor, i);
+					if (level !== null && level <= currentHeadingLevel) {
+						nextHeadingLine = i;
+						break;
+					}
+				}
+
+				const fromPos = { line: currentHeadingLine, ch: 0 };
+				const toPos = {
+					line: nextHeadingLine - 1,
+					ch: editor.getLine(nextHeadingLine - 1).length,
+				};
+
+				editor.setSelection(fromPos, toPos);
+			} else {
+				const fromPos = { line: 0, ch: 0 };
+				const toPos = {
+					line: lineCount - 1,
+					ch: editor.getLine(lineCount - 1).length,
+				};
+
+				editor.setSelection(fromPos, toPos);
+			}
+		} else {
+			const fromPos = { line: 0, ch: 0 };
+			const toPos = {
+				line: lineCount - 1,
+				ch: editor.getLine(lineCount - 1).length,
+			};
+
+			editor.setSelection(fromPos, toPos);
+		}
 	}
 
 	selectAllCurrentLevelHeadings(editor: Editor) {
@@ -230,16 +299,17 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			};
 			editor.setSelection(fromPos, toPos);
 		} else {
-
 			const newLinkContent = linkContent + '|';
 			const newLineText = lineText.substring(0, start + 2) + newLinkContent + lineText.substring(end - 2);
 			editor.setLine(cursor.line, newLineText);
 
-			const cursorPos = {
-				line: cursor.line,
-				ch: start + 2 + newLinkContent.length,
-			};
-			editor.setCursor(cursorPos);
+			setTimeout(() => {
+				const cursorPos = {
+					line: cursor.line,
+					ch: start + 2 + newLinkContent.length,
+				};
+				editor.setCursor(cursorPos);
+			}, 50);
 		}
 	}
 
@@ -307,10 +377,10 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			new Notice('Cursor is not inside or near a link.');
 			return;
 		}
-	
+
 		const { start, end } = result;
 		const cursor = editor.getCursor();
-	
+
 		const fromPos = {
 			line: cursor.line,
 			ch: start,
@@ -321,6 +391,5 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		};
 		editor.setSelection(fromPos, toPos);
 	}
-
 }
 

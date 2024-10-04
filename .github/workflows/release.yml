@@ -31,4 +31,4 @@ jobs:
           gh release create "$tag" \
             --title="$tag" \
             --draft \
-            main.js manifest.json styles.css src\hotkeys.ts src\settings.ts
+            main.js manifest.json styles.css hotkeys.ts settings.ts

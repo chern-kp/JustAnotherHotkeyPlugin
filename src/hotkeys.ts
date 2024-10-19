@@ -77,7 +77,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
             id: `move-to-next-heading-level-${level}`,
             name: `Move to Next Heading Level ${level}`,
             editorCallback: (editor: Editor) => {
-                plugin.moveToNextHeading(editor, level);
+                plugin.moveToNextHeadingOfLevel(editor, level);
             },
             hotkeys: [
                 {
@@ -91,7 +91,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
             id: `move-to-previous-heading-level-${level}`,
             name: `Move to Previous Heading Level ${level}`,
             editorCallback: (editor: Editor) => {
-                plugin.moveToPreviousHeading(editor, level);
+                plugin.moveToPreviousHeadingOfLevel(editor, level);
             },
             hotkeys: [
                 {
@@ -185,4 +185,34 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
             },
         ],
     });
+
+    
+    plugin.addCommand({
+		id: 'move-cursor-to-next-heading',
+		name: 'Move Cursor to Next Heading',
+		editorCallback: (editor: Editor) => {
+			plugin.moveCursorToNextHeading(editor);
+		},
+		hotkeys: [
+			{
+				modifiers: ["Alt"],
+				key: '`',
+			},
+		],
+	});
+
+	plugin.addCommand({
+		id: 'move-cursor-to-previous-heading',
+		name: 'Move Cursor to Previous Heading',
+		editorCallback: (editor: Editor) => {
+			plugin.moveCursorToPreviousHeading(editor);
+		},
+		hotkeys: [
+			{
+				modifiers: ["Alt", "Shift"],
+				key: '`',
+			},
+		],
+	});
+
 }

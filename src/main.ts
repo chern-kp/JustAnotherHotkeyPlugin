@@ -251,7 +251,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		new Notice(`${headings.length} headings of level ${currentHeadingLevel} were selected.`);
 	}
 
-	moveToNextHeading(editor: Editor, level: number) {
+	moveToNextHeadingOfLevel(editor: Editor, level: number) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'next', level);
 
@@ -263,7 +263,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
-	moveToPreviousHeading(editor: Editor, level: number) {
+	moveToPreviousHeadingOfLevel(editor: Editor, level: number) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous', level);
 
@@ -391,5 +391,28 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		};
 		editor.setSelection(fromPos, toPos);
 	}
+
+	moveCursorToNextHeading(editor: Editor) {
+		const cursor = editor.getCursor();
+		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'next');
+
+		if (foundHeadingLine !== -1) {
+			editor.setCursor({ line: foundHeadingLine, ch: 0 });
+		} else {
+			new Notice('No further heading found.');
+		}
+	}
+
+	moveCursorToPreviousHeading(editor: Editor) {
+		const cursor = editor.getCursor();
+		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+
+		if (foundHeadingLine !== -1) {
+			editor.setCursor({ line: foundHeadingLine, ch: 0 });
+		} else {
+			new Notice('No previous heading found.');
+		}
+	}
 }
+
 

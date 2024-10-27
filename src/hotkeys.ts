@@ -81,7 +81,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
             },
             hotkeys: [
                 {
-                    modifiers: ['Alt'],
+                    modifiers: ['Ctrl'],
                     key: `${level}`,
                 },
             ],
@@ -95,7 +95,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
             },
             hotkeys: [
                 {
-                    modifiers: ['Alt', 'Shift'],
+                    modifiers: ['Ctrl', 'Shift'],
                     key: `${level}`,
                 },
             ],
@@ -195,7 +195,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 		},
 		hotkeys: [
 			{
-				modifiers: ["Alt"],
+				modifiers: ["Ctrl"],
 				key: '`',
 			},
 		],
@@ -209,7 +209,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 		},
 		hotkeys: [
 			{
-				modifiers: ["Alt", "Shift"],
+				modifiers: ["Ctrl", "Shift"],
 				key: '`',
 			},
 		],

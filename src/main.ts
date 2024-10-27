@@ -254,24 +254,27 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	moveToNextHeadingOfLevel(editor: Editor, level: number) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'next', level);
-
+	
 		if (foundHeadingLine !== -1) {
 			const lineText = editor.getLine(foundHeadingLine);
 			editor.setCursor({ line: foundHeadingLine, ch: lineText.length });
 		} else {
-			new Notice(`No further heading level ${level} found.`);
+			const lineCount = editor.lineCount();
+			const lastLine = lineCount - 1;
+			const lastCh = editor.getLine(lastLine).length;
+			editor.setCursor({ line: lastLine, ch: lastCh });
 		}
 	}
 
 	moveToPreviousHeadingOfLevel(editor: Editor, level: number) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous', level);
-
+	
 		if (foundHeadingLine !== -1) {
 			const lineText = editor.getLine(foundHeadingLine);
 			editor.setCursor({ line: foundHeadingLine, ch: lineText.length });
 		} else {
-			new Notice(`No previous heading level ${level} found.`);
+			editor.setCursor({ line: 0, ch: 0 });
 		}
 	}
 
@@ -395,22 +398,25 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	moveCursorToNextHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'next');
-
+	
 		if (foundHeadingLine !== -1) {
 			editor.setCursor({ line: foundHeadingLine, ch: 0 });
 		} else {
-			new Notice('No further heading found.');
+			const lineCount = editor.lineCount();
+			const lastLine = lineCount - 1;
+			const lastCh = editor.getLine(lastLine).length;
+			editor.setCursor({ line: lastLine, ch: lastCh });
 		}
 	}
 
 	moveCursorToPreviousHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
-
+	
 		if (foundHeadingLine !== -1) {
 			editor.setCursor({ line: foundHeadingLine, ch: 0 });
 		} else {
-			new Notice('No previous heading found.');
+			editor.setCursor({ line: 0, ch: 0 });
 		}
 	}
 }

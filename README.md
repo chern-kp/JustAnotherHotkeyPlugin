@@ -20,3 +20,7 @@ JustAnotherHotkeyPlugin is an Obsidian plugin that adds new hotkeys for enhanced
 | Select Link Without Display Text             | `Ctrl + Shift + \`           | Selects the text before `\|` in an internal link, or the entire internal link if `\|` is absent.                                                    |
 | Select Link Content                          | `Ctrl/Cmd + Alt + \`         | Selects the content of the internal link, excluding the surrounding brackets.                                                                       |
 | Select Full Link                             | `Ctrl/Cmd + Shift + Alt + \` | Selects the entire internal link, including the surrounding brackets.                                                                               |
+
+New options in settings:
+
+Turn off TAB key indentation (`True` or `False`)

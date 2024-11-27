@@ -1,13 +1,17 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { Editor, Notice, Plugin } from 'obsidian';
 import { registerCommands } from './hotkeys';
+import { keymap } from '@codemirror/view';
+import { Prec } from '@codemirror/state';
+import { JustAnotherHotkeyPluginSettingTab } from './settings';
 
 
 interface JustAnotherHotkeyPluginSettings {
-
+	disableTabIndentation: boolean;
 }
 
 const DEFAULT_SETTINGS: JustAnotherHotkeyPluginSettings = {
+	disableTabIndentation: false
 }
 
 export default class JustAnotherHotkeyPlugin extends Plugin {
@@ -15,12 +19,26 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-		registerCommands(this);
+		registerCommands(this); //! for hotkeys
 
+		//Turn Off "Tab" key indentation, if the setting is turned on.
+		const tabKeymap = Prec.highest(keymap.of([{
+			key: 'Tab',
+			run: (): boolean => {
+				if (this.settings?.disableTabIndentation) {
+					return true;
+				}
+				return false;
+			}
+		}]));
+		this.registerEditorExtension([tabKeymap]);
+
+		this.addSettingTab(new JustAnotherHotkeyPluginSettingTab(this.app, this));
 	}
 
 	onunload() {
 	}
+
 
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
@@ -254,7 +272,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	moveToNextHeadingOfLevel(editor: Editor, level: number) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'next', level);
-	
+
 		if (foundHeadingLine !== -1) {
 			const lineText = editor.getLine(foundHeadingLine);
 			editor.setCursor({ line: foundHeadingLine, ch: lineText.length });
@@ -269,7 +287,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	moveToPreviousHeadingOfLevel(editor: Editor, level: number) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous', level);
-	
+
 		if (foundHeadingLine !== -1) {
 			const lineText = editor.getLine(foundHeadingLine);
 			editor.setCursor({ line: foundHeadingLine, ch: lineText.length });
@@ -398,7 +416,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	moveCursorToNextHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'next');
-	
+
 		if (foundHeadingLine !== -1) {
 			editor.setCursor({ line: foundHeadingLine, ch: 0 });
 		} else {
@@ -412,7 +430,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	moveCursorToPreviousHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
-	
+
 		if (foundHeadingLine !== -1) {
 			editor.setCursor({ line: foundHeadingLine, ch: 0 });
 		} else {

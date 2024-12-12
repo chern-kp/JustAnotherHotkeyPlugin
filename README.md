@@ -24,3 +24,4 @@ JustAnotherHotkeyPlugin is an Obsidian plugin that adds new hotkeys for enhanced
 New options in settings:
 
 Turn off TAB key indentation (`True` or `False`)
+Copy inline code on double click (`True` or `False`)

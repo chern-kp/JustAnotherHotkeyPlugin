@@ -11,7 +11,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         hotkeys: [
             {
                 modifiers: ['Mod'],
-                key: 's',
+                key: 'S',
             },
         ],
     });
@@ -25,7 +25,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         hotkeys: [
             {
                 modifiers: ['Mod', 'Shift'],
-                key: 's',
+                key: 'S',
             },
         ],
     });
@@ -39,7 +39,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         hotkeys: [
             {
                 modifiers: ['Mod', 'Alt'],
-                key: 's',
+                key: 'S',
             },
         ],
     });
@@ -67,7 +67,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         hotkeys: [
             {
                 modifiers: ['Mod', 'Alt', 'Shift'],
-                key: 's',
+                key: 'S',
             },
         ],
     });
@@ -81,7 +81,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
             },
             hotkeys: [
                 {
-                    modifiers: ['Ctrl'],
+                    modifiers: ['Mod'],
                     key: `${level}`,
                 },
             ],
@@ -95,7 +95,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
             },
             hotkeys: [
                 {
-                    modifiers: ['Ctrl', 'Shift'],
+                    modifiers: ['Mod', 'Shift'],
                     key: `${level}`,
                 },
             ],
@@ -195,7 +195,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 		},
 		hotkeys: [
 			{
-				modifiers: ["Ctrl"],
+				modifiers: ["Mod"],
 				key: '`',
 			},
 		],
@@ -209,7 +209,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 		},
 		hotkeys: [
 			{
-				modifiers: ["Ctrl", "Shift"],
+				modifiers: ["Mod", "Shift"],
 				key: '`',
 			},
 		],

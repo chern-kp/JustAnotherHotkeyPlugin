@@ -305,7 +305,6 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 		const { lineText, match, start, end } = result;
 		const cursor = editor.getCursor();
-
 		const linkContent = match[1];
 		const pipeIndex = linkContent.indexOf('|');
 
@@ -321,16 +320,22 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			editor.setSelection(fromPos, toPos);
 		} else {
 			const newLinkContent = linkContent + '|';
-			const newLineText = lineText.substring(0, start + 2) + newLinkContent + lineText.substring(end - 2);
-			editor.setLine(cursor.line, newLineText);
 
-			setTimeout(() => {
-				const cursorPos = {
-					line: cursor.line,
-					ch: start + 2 + newLinkContent.length,
-				};
-				editor.setCursor(cursorPos);
-			}, 50);
+			const beforeLink = lineText.substring(0, start);
+			const afterLink = lineText.substring(end);
+			const newLink = `[[${newLinkContent}]]`;
+			editor.transaction({
+				changes: [{
+					from: { line: cursor.line, ch: 0 },
+					to: { line: cursor.line, ch: lineText.length },
+					text: beforeLink + newLink + afterLink
+				}]
+			});
+			const newCursorPos = {
+				line: cursor.line,
+				ch: start + 2 + linkContent.length + 1
+			};
+			editor.setCursor(newCursorPos);
 		}
 	}
 

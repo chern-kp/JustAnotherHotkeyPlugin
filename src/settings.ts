@@ -25,5 +25,17 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                     console.log("Settings saved after toggle");
                 }));
+
+        new Setting(containerEl)
+            .setName('Copy inline code on double click')
+            .setDesc('When enabled, double-clicking on inline code blocks will copy their content')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.copyInlineCodeOnDoubleClick)
+                .onChange(async (value) => {
+                    this.plugin.settings.copyInlineCodeOnDoubleClick = value;
+                    await this.plugin.saveSettings();
+                }));
     }
+
+
 }

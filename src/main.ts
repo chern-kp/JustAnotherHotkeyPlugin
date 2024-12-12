@@ -8,10 +8,12 @@ import { JustAnotherHotkeyPluginSettingTab } from './settings';
 
 interface JustAnotherHotkeyPluginSettings {
 	disableTabIndentation: boolean;
+	copyInlineCodeOnDoubleClick: boolean;
 }
 
 const DEFAULT_SETTINGS: JustAnotherHotkeyPluginSettings = {
-	disableTabIndentation: false
+	disableTabIndentation: false,
+	copyInlineCodeOnDoubleClick: false
 }
 
 export default class JustAnotherHotkeyPlugin extends Plugin {
@@ -20,6 +22,29 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		registerCommands(this); //! for hotkeys
+
+		// for "Copy inline code on double click" setting 
+		this.registerDomEvent(document, 'dblclick', (evt: MouseEvent) => {
+			console.log("Double click detected");
+			if (!this.settings.copyInlineCodeOnDoubleClick) {
+				console.log("Feature is disabled in settings");
+				return;
+			}
+			const target = evt.target as HTMLElement;
+			const isInlineCode = target.classList.contains('cm-inline-code');
+			console.log("Is inline code:", isInlineCode);
+			if (isInlineCode) {
+				const text = target.textContent;
+				if (text) {
+					navigator.clipboard.writeText(text).then(() => {
+						new Notice('Code copied to clipboard');
+					}).catch(err => {
+						console.error('Failed to copy text: ', err);
+						new Notice('Failed to copy code');
+					});
+				}
+			}
+		});
 
 		//Turn Off "Tab" key indentation, if the setting is turned on.
 		const tabKeymap = Prec.highest(keymap.of([{
@@ -176,8 +201,8 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		};
 
 		editor.setSelection(fromPos, toPos);
-		editor.scrollIntoView({from: toPos, to: toPos}, true);
-		}
+		editor.scrollIntoView({ from: toPos, to: toPos }, true);
+	}
 
 	selectCurrentAndChildHeadings(editor: Editor) {
 		const cursor = editor.getCursor();
@@ -230,7 +255,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			};
 
 			editor.setSelection(fromPos, toPos);
-			editor.scrollIntoView({from: toPos, to: toPos}, true);
+			editor.scrollIntoView({ from: toPos, to: toPos }, true);
 		}
 	}
 
@@ -272,7 +297,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		const toPos = { line: toLine, ch: editor.getLine(toLine).length };
 
 		editor.setSelection(fromPos, toPos);
-		editor.scrollIntoView({from: toPos, to: toPos}, true);
+		editor.scrollIntoView({ from: toPos, to: toPos }, true);
 
 		new Notice(`${headings.length} headings of level ${currentHeadingLevel} were selected.`);
 	}
@@ -290,7 +315,8 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			const lastCh = editor.getLine(lastLine).length;
 			const pos = { line: lastLine, ch: lastCh };
 			this.scrollToPosition(editor, pos);
-		}}
+		}
+	}
 
 	moveToPreviousHeadingOfLevel(editor: Editor, level: number) {
 		const cursor = editor.getCursor();
@@ -438,7 +464,8 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			const lastCh = editor.getLine(lastLine).length;
 			const pos = { line: lastLine, ch: lastCh };
 			this.scrollToPosition(editor, pos);
-		}}
+		}
+	}
 
 	moveCursorToPreviousHeading(editor: Editor) {
 		const cursor = editor.getCursor();

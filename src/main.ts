@@ -48,6 +48,11 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
+	private scrollToPosition(editor: Editor, pos: CodeMirror.Position) {
+		editor.setCursor(pos);
+		editor.scrollIntoView({ from: pos, to: pos }, true);
+	}
+
 	private getHeadingLevelAtLine(editor: Editor, line: number): number | null {
 		const lineText = editor.getLine(line);
 		const match = lineText.match(/^(#+)\s/);
@@ -96,7 +101,6 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		const nextHeadingLine = this.findHeadingLine(editor, cursor.line, 'next');
 
 		const fromPos = cursor;
-
 		let toPos: CodeMirror.Position;
 
 		if (nextHeadingLine !== -1) {
@@ -113,6 +117,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 
 		editor.setSelection(fromPos, toPos);
+		editor.scrollIntoView({ from: toPos, to: toPos }, true);
 	}
 
 
@@ -171,7 +176,8 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		};
 
 		editor.setSelection(fromPos, toPos);
-	}
+		editor.scrollIntoView({from: toPos, to: toPos}, true);
+		}
 
 	selectCurrentAndChildHeadings(editor: Editor) {
 		const cursor = editor.getCursor();
@@ -224,6 +230,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			};
 
 			editor.setSelection(fromPos, toPos);
+			editor.scrollIntoView({from: toPos, to: toPos}, true);
 		}
 	}
 
@@ -265,6 +272,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		const toPos = { line: toLine, ch: editor.getLine(toLine).length };
 
 		editor.setSelection(fromPos, toPos);
+		editor.scrollIntoView({from: toPos, to: toPos}, true);
 
 		new Notice(`${headings.length} headings of level ${currentHeadingLevel} were selected.`);
 	}
@@ -272,17 +280,17 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	moveToNextHeadingOfLevel(editor: Editor, level: number) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'next', level);
-
 		if (foundHeadingLine !== -1) {
 			const lineText = editor.getLine(foundHeadingLine);
-			editor.setCursor({ line: foundHeadingLine, ch: lineText.length });
+			const pos = { line: foundHeadingLine, ch: lineText.length };
+			this.scrollToPosition(editor, pos);
 		} else {
 			const lineCount = editor.lineCount();
 			const lastLine = lineCount - 1;
 			const lastCh = editor.getLine(lastLine).length;
-			editor.setCursor({ line: lastLine, ch: lastCh });
-		}
-	}
+			const pos = { line: lastLine, ch: lastCh };
+			this.scrollToPosition(editor, pos);
+		}}
 
 	moveToPreviousHeadingOfLevel(editor: Editor, level: number) {
 		const cursor = editor.getCursor();
@@ -421,16 +429,16 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	moveCursorToNextHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'next');
-
 		if (foundHeadingLine !== -1) {
-			editor.setCursor({ line: foundHeadingLine, ch: 0 });
+			const pos = { line: foundHeadingLine, ch: 0 };
+			this.scrollToPosition(editor, pos);
 		} else {
 			const lineCount = editor.lineCount();
 			const lastLine = lineCount - 1;
 			const lastCh = editor.getLine(lastLine).length;
-			editor.setCursor({ line: lastLine, ch: lastCh });
-		}
-	}
+			const pos = { line: lastLine, ch: lastCh };
+			this.scrollToPosition(editor, pos);
+		}}
 
 	moveCursorToPreviousHeading(editor: Editor) {
 		const cursor = editor.getCursor();

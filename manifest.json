@@ -1,7 +1,7 @@
 {
 	"id": "just-another-hotkey-plugin",
 	"name": "Just Another Hotkey Plugin",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"minAppVersion": "0.15.0",
 	"description": "New Hotkeys",
 	"author": "Obsidian",

@@ -58,5 +58,19 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                     this.plugin.settings.languageSearchLocation = value;
                     await this.plugin.saveSettings();
                 }));
+
+                new Setting(containerEl)
+            .setName('Custom language list')
+            .setDesc('Enter programming languages (one per line). Languages higher in the list have higher priority.')
+            .addTextArea(text => text
+                .setValue(this.plugin.settings.codeBoxLanguages.join('\n'))
+                .setDisabled(!this.plugin.settings.useContextualCodeBlockLanguage)
+                .onChange(async (value) => {
+                    this.plugin.settings.codeBoxLanguages = value
+                        .split('\n')
+                        .map(lang => lang.trim())
+                        .filter(lang => lang.length > 0);
+                    await this.plugin.saveSettings();
+                }));
     }
 }

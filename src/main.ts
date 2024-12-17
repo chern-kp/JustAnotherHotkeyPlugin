@@ -6,17 +6,19 @@ import { Prec } from '@codemirror/state';
 import { JustAnotherHotkeyPluginSettingTab } from './settings';
 
 interface JustAnotherHotkeyPluginSettings {
-    disableTabIndentation: boolean;
-    copyInlineCodeOnDoubleClick: boolean;
-    useContextualCodeBlockLanguage: boolean;
-    languageSearchLocation: 'noteName' | 'parentFolder' | 'nearestToRootAncestorFolder' | 'tags';
+	disableTabIndentation: boolean;
+	copyInlineCodeOnDoubleClick: boolean;
+	useContextualCodeBlockLanguage: boolean;
+	languageSearchLocation: 'noteName' | 'parentFolder' | 'nearestToRootAncestorFolder' | 'tags';
+	codeBoxLanguages: string[]; // Добавляем новое поле
 }
 
 const DEFAULT_SETTINGS: JustAnotherHotkeyPluginSettings = {
-    disableTabIndentation: false,
-    copyInlineCodeOnDoubleClick: false,
-    useContextualCodeBlockLanguage: false,
-    languageSearchLocation: 'noteName'
+	disableTabIndentation: false,
+	copyInlineCodeOnDoubleClick: false,
+	useContextualCodeBlockLanguage: false,
+	languageSearchLocation: 'noteName',
+	codeBoxLanguages: [],
 }
 
 export default class JustAnotherHotkeyPlugin extends Plugin {
@@ -28,14 +30,11 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 		// for "Copy inline code on double click" setting 
 		this.registerDomEvent(document, 'dblclick', (evt: MouseEvent) => {
-			console.log("Double click detected");
 			if (!this.settings.copyInlineCodeOnDoubleClick) {
-				console.log("Feature is disabled in settings");
 				return;
 			}
 			const target = evt.target as HTMLElement;
 			const isInlineCode = target.classList.contains('cm-inline-code');
-			console.log("Is inline code:", isInlineCode);
 			if (isInlineCode) {
 				const text = target.textContent;
 				if (text) {
@@ -122,6 +121,70 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			}
 		}
 		return null;
+	}
+
+	private determineCodeLanguage(): string | null {
+		// Если функция контекстного определения языка выключена, возвращаем null
+		if (!this.settings.useContextualCodeBlockLanguage) {
+			return null;
+		}
+
+		// Получаем активный файл
+		const activeFile = this.app.workspace.getActiveFile();
+		if (!activeFile) {
+			return null;
+		}
+
+		// Получаем путь к файлу и разбиваем его на компоненты
+		const filePath = activeFile.path;
+		const pathComponents = filePath.split('/');
+		const fileName = pathComponents[pathComponents.length - 1];
+
+		// Функция для поиска совпадений языка в строке
+		const findLanguageMatch = (text: string): string | null => {
+			// Приводим текст к нижнему регистру для регистронезависимого сравнения
+			const lowerText = text.toLowerCase();
+
+			// Проходим по массиву языков в порядке приоритета
+			for (const lang of this.settings.codeBoxLanguages) {
+				const lowerLang = lang.toLowerCase();
+				if (lowerText.includes(lowerLang)) {
+					return lang;
+				}
+			}
+			return null;
+		};
+
+		let foundLanguage: string | null = null;
+
+		switch (this.settings.languageSearchLocation) {
+			case 'noteName':
+				foundLanguage = findLanguageMatch(fileName);
+				break;
+
+			case 'parentFolder':
+				if (pathComponents.length > 1) {
+					const parentFolder = pathComponents[pathComponents.length - 2];
+					foundLanguage = findLanguageMatch(parentFolder);
+				}
+				break;
+
+				case 'nearestToRootAncestorFolder':
+					for (let i = 0; i < pathComponents.length - 1; i++) {
+						foundLanguage = findLanguageMatch(pathComponents[i]);
+						if (foundLanguage) {
+							console.log(`Found language in ancestor folder: ${pathComponents[i]}`);
+							break;
+						}
+					}
+					break;
+
+			case 'tags':
+				// TODO
+				console.log('todo');
+				break;
+		}
+		return foundLanguage;
 	}
 
 	selectToEndOfCurrentHeading(editor: Editor) {
@@ -486,10 +549,12 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			const clipboardText = await navigator.clipboard.readText();
 			if (clipboardText) {
 				const cursor = editor.getCursor();
-				const codeBlock = '```\n' + clipboardText + '\n```\n';
-				
+
+				const language = this.determineCodeLanguage();
+				const codeBlock = '```' + (language || '') + '\n' + clipboardText + '\n```\n';
+
 				editor.replaceRange(codeBlock, cursor);
-				
+
 				const newPos = {
 					line: cursor.line + clipboardText.split('\n').length + 2,
 					ch: 0
@@ -500,7 +565,4 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			console.error('Failed to paste text: ', err);
 		}
 	}
-
 }
-
-

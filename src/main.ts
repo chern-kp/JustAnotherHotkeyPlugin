@@ -5,15 +5,18 @@ import { keymap } from '@codemirror/view';
 import { Prec } from '@codemirror/state';
 import { JustAnotherHotkeyPluginSettingTab } from './settings';
 
-
 interface JustAnotherHotkeyPluginSettings {
-	disableTabIndentation: boolean;
-	copyInlineCodeOnDoubleClick: boolean;
+    disableTabIndentation: boolean;
+    copyInlineCodeOnDoubleClick: boolean;
+    useContextualCodeBlockLanguage: boolean;
+    languageSearchLocation: 'noteName' | 'parentFolder' | 'nearestToRootAncestorFolder' | 'tags';
 }
 
 const DEFAULT_SETTINGS: JustAnotherHotkeyPluginSettings = {
-	disableTabIndentation: false,
-	copyInlineCodeOnDoubleClick: false
+    disableTabIndentation: false,
+    copyInlineCodeOnDoubleClick: false,
+    useContextualCodeBlockLanguage: false,
+    languageSearchLocation: 'noteName'
 }
 
 export default class JustAnotherHotkeyPlugin extends Plugin {
@@ -477,6 +480,27 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			editor.setCursor({ line: 0, ch: 0 });
 		}
 	}
+
+	async pasteAsCodeBlock(editor: Editor) {
+		try {
+			const clipboardText = await navigator.clipboard.readText();
+			if (clipboardText) {
+				const cursor = editor.getCursor();
+				const codeBlock = '```\n' + clipboardText + '\n```\n';
+				
+				editor.replaceRange(codeBlock, cursor);
+				
+				const newPos = {
+					line: cursor.line + clipboardText.split('\n').length + 2,
+					ch: 0
+				};
+				editor.setCursor(newPos);
+			}
+		} catch (err) {
+			console.error('Failed to paste text: ', err);
+		}
+	}
+
 }
 
 

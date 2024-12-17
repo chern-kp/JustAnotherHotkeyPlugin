@@ -10,7 +10,6 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
     }
 
     display(): void {
-        console.log("Settings tab display called");
         const { containerEl } = this;
         containerEl.empty();
 
@@ -20,10 +19,8 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.disableTabIndentation)
                 .onChange(async (value) => {
-                    console.log("Toggle changed to:", value);
                     this.plugin.settings.disableTabIndentation = value;
                     await this.plugin.saveSettings();
-                    console.log("Settings saved after toggle");
                 }));
 
         new Setting(containerEl)
@@ -35,7 +32,31 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                     this.plugin.settings.copyInlineCodeOnDoubleClick = value;
                     await this.plugin.saveSettings();
                 }));
+
+        new Setting(containerEl)
+            .setName('Use contextual code block language')
+            .setDesc('Automatically determine code block language based on context')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.useContextualCodeBlockLanguage)
+                .onChange(async (value) => {
+                    this.plugin.settings.useContextualCodeBlockLanguage = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+
+        new Setting(containerEl)
+            .setName('Search language code in...')
+            .setDesc('If multiple language names are found, the one with higher priority in the custom language list will be selected')
+            .addDropdown(dropdown => dropdown
+                .addOption('noteName', 'Note name')
+                .addOption('parentFolder', 'Parent folder name')
+                .addOption('nearestToRootAncestorFolder', 'Nearest to root ancestor folder name')
+                .addOption('tags', 'Tags')
+                .setValue(this.plugin.settings.languageSearchLocation)
+                .setDisabled(!this.plugin.settings.useContextualCodeBlockLanguage)
+                .onChange(async (value: 'noteName' | 'parentFolder' | 'nearestToRootAncestorFolder' | 'tags') => {
+                    this.plugin.settings.languageSearchLocation = value;
+                    await this.plugin.saveSettings();
+                }));
     }
-
-
 }

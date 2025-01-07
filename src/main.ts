@@ -5,6 +5,7 @@ import { keymap } from '@codemirror/view';
 import { Prec } from '@codemirror/state';
 import { JustAnotherHotkeyPluginSettingTab } from './settings';
 
+
 interface JustAnotherHotkeyPluginSettings {
 	disableTabIndentation: boolean;
 	copyInlineCodeOnDoubleClick: boolean;
@@ -48,7 +49,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			}
 		});
 
-		//Turn Off "Tab" key indentation, if the setting is turned on.
+		//NOTE - Turn Off "Tab" key indentation, if the setting is turned on.
 		const tabKeymap = Prec.highest(keymap.of([{
 			key: 'Tab',
 			run: (): boolean => {
@@ -75,11 +76,14 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		await this.saveData(this.settings);
 	}
 
+	//SECTION - Additional functions
+	//NOTE - Additional function for "Move to Next Heading" and "Move to Previous Heading" commands. Scrolls the editor (moves on the screen) to the position of the heading.
 	private scrollToPosition(editor: Editor, pos: CodeMirror.Position) {
 		editor.setCursor(pos);
 		editor.scrollIntoView({ from: pos, to: pos }, true);
 	}
 
+	//NOTE - Additional function for "Select to End of Current Heading" command. Returns the level of the heading at the provided line number.
 	private getHeadingLevelAtLine(editor: Editor, line: number): number | null {
 		const lineText = editor.getLine(line);
 		const match = lineText.match(/^(#+)\s/);
@@ -89,6 +93,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		return null;
 	}
 
+	//NOTE - Additional function for "Move to Next Heading" and "Move to Previous Heading" commands. Finds the next heading line in the specified direction (next or previous).
 	private findHeadingLine(editor: Editor, startLine: number, direction: 'next' | 'previous', level?: number): number {
 		const lineCount = editor.lineCount();
 		const delta = direction === 'next' ? 1 : -1;
@@ -107,6 +112,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		return -1;
 	}
 
+	//NOTE - Additional function for "Select to End of Current Heading" command. Selects the heading line from the current cursor position.
 	private findLinkUnderCursor(editor: Editor): { lineText: string, match: RegExpExecArray, start: number, end: number } | null {
 		const cursor = editor.getCursor();
 		const lineText = editor.getLine(cursor.line);
@@ -123,6 +129,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		return null;
 	}
 
+	//NOTE - Additional function for "Paste as Code Block" command. Finds the language of the code block based on the context (settings).
 	private determineCodeLanguage(): string | null {
 
 		if (!this.settings.useContextualCodeBlockLanguage) {
@@ -183,6 +190,10 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		return foundLanguage;
 	}
 
+	//!SECTION - Additional functions
+
+	//SECTION - Heading commands
+	//NOTE - Function of "Select to the End of Current Heading" command (CTRL + S).
 	selectToEndOfCurrentHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const nextHeadingLine = this.findHeadingLine(editor, cursor.line, 'next');
@@ -207,7 +218,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		editor.scrollIntoView({ from: toPos, to: toPos }, true);
 	}
 
-
+	//NOTE - Function of "Select to the Beginning of Current Heading" command (CTRL + SHIFT + S).
 	selectToBeginningOfCurrentHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const currentLineText = editor.getLine(cursor.line);
@@ -239,6 +250,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		editor.setSelection(fromPos, toPos);
 	}
 
+	//NOTE - Function of "Select Current Heading" command (CTRL + ALT + S).
 	selectCurrentHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const lineCount = editor.lineCount();
@@ -266,6 +278,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		editor.scrollIntoView({ from: toPos, to: toPos }, true);
 	}
 
+	//NOTE - Function of "Select Current and Child Headings" command (CTRL + ALT + SHIFT + S).
 	selectCurrentAndChildHeadings(editor: Editor) {
 		const cursor = editor.getCursor();
 		const lineCount = editor.lineCount();
@@ -321,6 +334,8 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
+	//NOTE - Function of "Select All Current Level Headings" command (CTRL + ALT + PAGE DOWN).
+	//TODO - Change hotkey
 	selectAllCurrentLevelHeadings(editor: Editor) {
 		const cursor = editor.getCursor();
 		const lineCount = editor.lineCount();
@@ -364,6 +379,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		new Notice(`${headings.length} headings of level ${currentHeadingLevel} were selected.`);
 	}
 
+	//NOTE - Function of "Move to Next Heading Level 1-6" commands (CTRL + 1, CTRL + 2 ... CTRL + 6).
 	moveToNextHeadingOfLevel(editor: Editor, level: number) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'next', level);
@@ -380,6 +396,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
+	//NOTE - Function of "Move to Previous Heading Level 1-6" commands (CTRL + SHIFT + 1, CTRL + SHIFT + 2 ... CTRL + SHIFT + 6).
 	moveToPreviousHeadingOfLevel(editor: Editor, level: number) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous', level);
@@ -392,6 +409,38 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
+	//NOTE - Function of "Move to Next Heading" command (ALT + PAGE DOWN).
+	moveCursorToNextHeading(editor: Editor) {
+		const cursor = editor.getCursor();
+		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'next');
+		if (foundHeadingLine !== -1) {
+			const pos = { line: foundHeadingLine, ch: 0 };
+			this.scrollToPosition(editor, pos);
+		} else {
+			const lineCount = editor.lineCount();
+			const lastLine = lineCount - 1;
+			const lastCh = editor.getLine(lastLine).length;
+			const pos = { line: lastLine, ch: lastCh };
+			this.scrollToPosition(editor, pos);
+		}
+	}
+
+	//NOTE - Function of "Move to Previous Heading" command (ALT + PAGE UP).
+	moveCursorToPreviousHeading(editor: Editor) {
+		const cursor = editor.getCursor();
+		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+
+		if (foundHeadingLine !== -1) {
+			editor.setCursor({ line: foundHeadingLine, ch: 0 });
+		} else {
+			editor.setCursor({ line: 0, ch: 0 });
+		}
+	}
+
+	//!SECTION - Heading commands
+
+
+	//NOTE - Function of "Select Link Display Text" command (CTRL + ALT + L).
 	selectLinkDisplayText(editor: Editor) {
 		const result = this.findLinkUnderCursor(editor);
 		if (!result) {
@@ -435,7 +484,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
-
+	//NOTE - Function of "Select Link Without Display Text" command (CTRL + \).
 	selectLinkWithoutDisplayText(editor: Editor) {
 		const result = this.findLinkUnderCursor(editor);
 		if (!result) {
@@ -472,6 +521,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
+	//NOTE - Function of "Select Link Content" command (CTRL + ALT + \).
 	selectLinkContent(editor: Editor) {
 		const result = this.findLinkUnderCursor(editor);
 		if (!result) {
@@ -493,6 +543,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		editor.setSelection(fromPos, toPos);
 	}
 
+	//NOTE - Function of "Select Full Link" command (CTRL + SHIFT + ALT + \).
 	selectFullLink(editor: Editor) {
 		const result = this.findLinkUnderCursor(editor);
 		if (!result) {
@@ -514,32 +565,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		editor.setSelection(fromPos, toPos);
 	}
 
-	moveCursorToNextHeading(editor: Editor) {
-		const cursor = editor.getCursor();
-		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'next');
-		if (foundHeadingLine !== -1) {
-			const pos = { line: foundHeadingLine, ch: 0 };
-			this.scrollToPosition(editor, pos);
-		} else {
-			const lineCount = editor.lineCount();
-			const lastLine = lineCount - 1;
-			const lastCh = editor.getLine(lastLine).length;
-			const pos = { line: lastLine, ch: lastCh };
-			this.scrollToPosition(editor, pos);
-		}
-	}
-
-	moveCursorToPreviousHeading(editor: Editor) {
-		const cursor = editor.getCursor();
-		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
-
-		if (foundHeadingLine !== -1) {
-			editor.setCursor({ line: foundHeadingLine, ch: 0 });
-		} else {
-			editor.setCursor({ line: 0, ch: 0 });
-		}
-	}
-
+	//NOTE - Function of "Paste as Code Block" command (CTRL + SHIFT + V).
 	async pasteAsCodeBlock(editor: Editor) {
 		try {
 			const clipboardText = await navigator.clipboard.readText();

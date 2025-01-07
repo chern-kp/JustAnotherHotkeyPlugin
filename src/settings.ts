@@ -72,5 +72,6 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                         .filter(lang => lang.length > 0);
                     await this.plugin.saveSettings();
                 }));
+
     }
 }

@@ -186,7 +186,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         ],
     });
 
-    
+
     plugin.addCommand({
 		id: 'move-cursor-to-next-heading',
 		name: 'Move Cursor to Next Heading',
@@ -214,7 +214,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 			},
 		],
 	});
-    
+
     plugin.addCommand({
         id: 'paste-as-code-block',
         name: 'Paste as Code Block',

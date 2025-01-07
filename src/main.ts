@@ -10,7 +10,7 @@ interface JustAnotherHotkeyPluginSettings {
 	copyInlineCodeOnDoubleClick: boolean;
 	useContextualCodeBlockLanguage: boolean;
 	languageSearchLocation: 'noteName' | 'parentFolder' | 'nearestToRootAncestorFolder' | 'tags';
-	codeBoxLanguages: string[]; // Добавляем новое поле
+	codeBoxLanguages: string[];
 }
 
 const DEFAULT_SETTINGS: JustAnotherHotkeyPluginSettings = {
@@ -28,7 +28,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		await this.loadSettings();
 		registerCommands(this); //! for hotkeys
 
-		// for "Copy inline code on double click" setting 
+		// for "Copy inline code on double click" setting
 		this.registerDomEvent(document, 'dblclick', (evt: MouseEvent) => {
 			if (!this.settings.copyInlineCodeOnDoubleClick) {
 				return;
@@ -124,28 +124,24 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	private determineCodeLanguage(): string | null {
-		// Если функция контекстного определения языка выключена, возвращаем null
+
 		if (!this.settings.useContextualCodeBlockLanguage) {
 			return null;
 		}
 
-		// Получаем активный файл
 		const activeFile = this.app.workspace.getActiveFile();
 		if (!activeFile) {
 			return null;
 		}
 
-		// Получаем путь к файлу и разбиваем его на компоненты
 		const filePath = activeFile.path;
 		const pathComponents = filePath.split('/');
 		const fileName = pathComponents[pathComponents.length - 1];
 
-		// Функция для поиска совпадений языка в строке
 		const findLanguageMatch = (text: string): string | null => {
-			// Приводим текст к нижнему регистру для регистронезависимого сравнения
+
 			const lowerText = text.toLowerCase();
 
-			// Проходим по массиву языков в порядке приоритета
 			for (const lang of this.settings.codeBoxLanguages) {
 				const lowerLang = lang.toLowerCase();
 				if (lowerText.includes(lowerLang)) {

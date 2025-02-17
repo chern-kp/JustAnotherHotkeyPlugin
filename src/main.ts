@@ -172,15 +172,15 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 				}
 				break;
 
-				case 'nearestToRootAncestorFolder':
-					for (let i = 0; i < pathComponents.length - 1; i++) {
-						foundLanguage = findLanguageMatch(pathComponents[i]);
-						if (foundLanguage) {
-							console.log(`Found language in ancestor folder: ${pathComponents[i]}`);
-							break;
-						}
+			case 'nearestToRootAncestorFolder':
+				for (let i = 0; i < pathComponents.length - 1; i++) {
+					foundLanguage = findLanguageMatch(pathComponents[i]);
+					if (foundLanguage) {
+						console.log(`Found language in ancestor folder: ${pathComponents[i]}`);
+						break;
 					}
-					break;
+				}
+				break;
 
 			case 'tags':
 				// TODO
@@ -278,6 +278,50 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		editor.scrollIntoView({ from: toPos, to: toPos }, true);
 	}
 
+	//NOTE - Function of "Select All Current Level Headings" command (CTRL + ALT + PAGE DOWN).
+	selectAllCurrentLevelHeadings(editor: Editor) {
+		const cursor = editor.getCursor();
+		const lineCount = editor.lineCount();
+
+		let currentHeadingLine = -1;
+		let currentHeadingLevel = 0;
+		for (let i = cursor.line; i >= 0; i--) {
+			const level = this.getHeadingLevelAtLine(editor, i);
+			if (level !== null) {
+				currentHeadingLine = i;
+				currentHeadingLevel = level;
+				break;
+			}
+		}
+
+		if (currentHeadingLine === -1) {
+			new Notice('No heading found at the cursor position.');
+			return;
+		}
+
+		const headings = [];
+		for (let i = 0; i < lineCount; i++) {
+			const level = this.getHeadingLevelAtLine(editor, i);
+			if (level === currentHeadingLevel) {
+				headings.push(i);
+			}
+		}
+
+		if (headings.length === 0) {
+			new Notice('No headings of the current level found.');
+			return;
+		}
+
+		const fromPos = { line: headings[0], ch: 0 };
+		const toLine = editor.getLine(headings[headings.length - 1] + 1) ? headings[headings.length - 1] + 1 : lineCount - 1;
+		const toPos = { line: toLine, ch: editor.getLine(toLine).length };
+
+		editor.setSelection(fromPos, toPos);
+		editor.scrollIntoView({ from: toPos, to: toPos }, true);
+
+		new Notice(`${headings.length} headings of level ${currentHeadingLevel} were selected.`);
+	}
+
 	//NOTE - Function of "Select Current and Child Headings" command (CTRL + ALT + SHIFT + S).
 	selectCurrentAndChildHeadings(editor: Editor) {
 		const cursor = editor.getCursor();
@@ -332,51 +376,6 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			editor.setSelection(fromPos, toPos);
 			editor.scrollIntoView({ from: toPos, to: toPos }, true);
 		}
-	}
-
-	//NOTE - Function of "Select All Current Level Headings" command (CTRL + ALT + PAGE DOWN).
-	//TODO - Change hotkey
-	selectAllCurrentLevelHeadings(editor: Editor) {
-		const cursor = editor.getCursor();
-		const lineCount = editor.lineCount();
-
-		let currentHeadingLine = -1;
-		let currentHeadingLevel = 0;
-		for (let i = cursor.line; i >= 0; i--) {
-			const level = this.getHeadingLevelAtLine(editor, i);
-			if (level !== null) {
-				currentHeadingLine = i;
-				currentHeadingLevel = level;
-				break;
-			}
-		}
-
-		if (currentHeadingLine === -1) {
-			new Notice('No heading found at the cursor position.');
-			return;
-		}
-
-		const headings = [];
-		for (let i = 0; i < lineCount; i++) {
-			const level = this.getHeadingLevelAtLine(editor, i);
-			if (level === currentHeadingLevel) {
-				headings.push(i);
-			}
-		}
-
-		if (headings.length === 0) {
-			new Notice('No headings of the current level found.');
-			return;
-		}
-
-		const fromPos = { line: headings[0], ch: 0 };
-		const toLine = editor.getLine(headings[headings.length - 1] + 1) ? headings[headings.length - 1] + 1 : lineCount - 1;
-		const toPos = { line: toLine, ch: editor.getLine(toLine).length };
-
-		editor.setSelection(fromPos, toPos);
-		editor.scrollIntoView({ from: toPos, to: toPos }, true);
-
-		new Notice(`${headings.length} headings of level ${currentHeadingLevel} were selected.`);
 	}
 
 	//NOTE - Function of "Move to Next Heading Level 1-6" commands (CTRL + 1, CTRL + 2 ... CTRL + 6).
@@ -439,7 +438,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 	//!SECTION - Heading commands
 
-
+	//SECTION - Link commands
 	//NOTE - Function of "Select Link Display Text" command (CTRL + ALT + L).
 	selectLinkDisplayText(editor: Editor) {
 		const result = this.findLinkUnderCursor(editor);
@@ -565,6 +564,8 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		editor.setSelection(fromPos, toPos);
 	}
 
+	//!SECTION - Link commands
+
 	//NOTE - Function of "Paste as Code Block" command (CTRL + SHIFT + V).
 	async pasteAsCodeBlock(editor: Editor) {
 		try {
@@ -587,4 +588,68 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			console.error('Failed to paste text: ', err);
 		}
 	}
+
+	//NOTE - Function of "Select current line" command (CTRL + L).
+	selectCurrentLine(editor: Editor) {
+		const selection = editor.getSelection();
+		const cursor = editor.getCursor();
+		const lineCount = editor.lineCount();
+
+		// Check if there is a selection
+		if (selection.length > 0) {
+			const currentSelection = editor.listSelections()[0];
+			const lastSelectedLine = currentSelection.head.line;
+
+			// If the last selected line is not the last line of the editor
+			if (lastSelectedLine < lineCount - 1) {
+				const fromPos = currentSelection.anchor;
+				const nextLine = lastSelectedLine + 1;
+				const nextLineLength = editor.getLine(nextLine).length;
+				const toPos = { line: nextLine, ch: nextLineLength };
+
+				editor.setSelection(fromPos, toPos);
+				editor.scrollIntoView({ from: toPos, to: toPos }, true);
+			}
+		} else {
+			// If there is no selection, select the current line
+			const lineText = editor.getLine(cursor.line);
+			const fromPos = { line: cursor.line, ch: 0 };
+			const toPos = { line: cursor.line, ch: lineText.length };
+			editor.setSelection(fromPos, toPos);
+			editor.scrollIntoView({ from: toPos, to: toPos }, true);
+		}
+	}
+
+	//NOTE - Function of "Clear selection from current line" command (CTRL + SHIFT + L).
+	clearSelectionFromCurrentLine(editor: Editor) {
+		const selection = editor.getSelection();
+
+		// If there's no selection, do nothing
+		if (selection.length === 0) {
+			return;
+		}
+
+		const currentSelection = editor.listSelections()[0];
+		const startLine = currentSelection.anchor.line;
+		const endLine = currentSelection.head.line;
+
+		// If selection spans multiple lines
+		if (startLine !== endLine) {
+			// Get the start of the current logical line
+			const currentLineStart = {
+				line: startLine,
+				ch: 0
+			};
+
+			// Set selection to exclude the current logical line
+			editor.setSelection(
+				currentLineStart,
+				{ line: endLine - 1, ch: editor.getLine(endLine - 1).length }
+			);
+		} else {
+			// If only one line is selected, clear selection
+			editor.setCursor({ line: startLine, ch: 0 });
+		}
+	}
+
 }

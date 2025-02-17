@@ -2,8 +2,11 @@
 
 JustAnotherHotkeyPlugin is an Obsidian plugin that adds new hotkeys for enhanced navigation and selection within notes.
 
+In development
+
 ## Features
 
+**New hotkeys:**
 
 | Feature                                      | Default Hotkey               | Description                                                                                                                                         |
 | -------------------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -21,9 +24,12 @@ JustAnotherHotkeyPlugin is an Obsidian plugin that adds new hotkeys for enhanced
 | Select Link Content                          | `Ctrl/Cmd + Alt + \`         | Selects the content of the internal link, excluding the surrounding brackets.                                                                       |
 | Select Full Link                             | `Ctrl/Cmd + Shift + Alt + \` | Selects the entire internal link, including the surrounding brackets.                                                                               |
 | Paste As Code Block                          | `Ctrl/Cmd + Alt + V`         | Selects the entire internal link, including the surrounding brackets.                                                                               |
+| Select Current Line                          | `Ctrl/Cmd + L`               | Selects the entire logical line of text (until next line break). Press multiple times to select next lines.                                         |
+| Clear Selection of Current Line              | `Ctrl/Cmd + Shift + L`       | Clears selection of current logical line of text (until previous line break). Press multiple times to unselect previous lines.                      |
 
 
-New options in settings:
+
+**New options in settings:**
 
 - Turn off TAB key indentation (`True` or `False`)
 - Copy inline code on double click (`True` or `False`)

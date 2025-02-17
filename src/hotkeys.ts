@@ -280,4 +280,34 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
             },
         ],
     });
+
+    //NOTE - Select to line start (Mod + Shift + <)
+    plugin.addCommand({
+        id: 'select-to-line-start',
+        name: 'Select to Line Start',
+        editorCallback: (editor: Editor) => {
+            plugin.selectToLineStart(editor);
+        },
+        hotkeys: [
+            {
+                modifiers: ['Mod', 'Shift'],
+                key: ',',
+            },
+        ],
+    });
+
+    //NOTE - Select to line end (Mod + Shift + >)
+    plugin.addCommand({
+        id: 'select-to-line-end',
+        name: 'Select to Line End',
+        editorCallback: (editor: Editor) => {
+            plugin.selectToLineEnd(editor);
+        },
+        hotkeys: [
+            {
+                modifiers: ['Mod', 'Shift'],
+                key: '.',
+            },
+        ],
+    });
 }

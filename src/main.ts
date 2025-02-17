@@ -652,4 +652,30 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
+	//NOTE - Function of "Select to line start" command (CTRL + SHIFT + <).
+	selectToLineStart(editor: Editor) {
+		const cursor = editor.getCursor();
+		const lineText = editor.getLine(cursor.line);
+
+		// Check for list markers using regex
+		const listMatch = lineText.match(/^[\s]*([-+*]|\d+\.)[\s]+(\[[\s|x]\][\s]+)?/);
+
+		// If list marker is found, select from the marker
+		const fromPos = {
+			line: cursor.line,
+			ch: listMatch ? listMatch[0].length : 0
+		};
+
+		editor.setSelection(fromPos, cursor);
+	}
+
+	//NOTE - Function of "Select to line end" command (CTRL + SHIFT + >).
+	selectToLineEnd(editor: Editor) {
+		const cursor = editor.getCursor();
+		const lineLength = editor.getLine(cursor.line).length;
+		const toPos = { line: cursor.line, ch: lineLength };
+		editor.setSelection(cursor, toPos);
+		editor.scrollIntoView({ from: toPos, to: toPos }, true);
+	}
+
 }

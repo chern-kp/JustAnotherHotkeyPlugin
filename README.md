@@ -1,12 +1,14 @@
 # JustAnotherHotkeyPlugin
 
-JustAnotherHotkeyPlugin is an Obsidian plugin that adds new hotkeys for enhanced navigation and selection within notes.
+JustAnotherHotkeyPlugin is an Obsidian plugin that adds new useful hotkeys for text editing, text selection, navigation and several additional features.
+This plugin also adds features such as ability to copy inline code content on double click, and code block language detection that depends on the note's file path (configurable).
+
 
 In development
 
 ## Features
 
-**New hotkeys:**
+### New hotkeys and commands
 
 | Feature                                      | Default Hotkey               | Description                                                                                                                                         |
 | -------------------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -32,7 +34,7 @@ In development
 | Move Heading Up                              | `Alt + PageUp`               | Moves entire heading section (including content) up, swapping with the heading above.                                                               |
 | Move Heading Down                            | `Alt + PageDown`             | Moves entire heading section (including content) down, swapping with the heading below.                                                             |
 
-**New options in settings:**
+### New options in settings
 
 - Turn off TAB key indentation (`True` or `False`)
 - Copy inline code on double click (`True` or `False`)
@@ -40,3 +42,21 @@ In development
     - Use contextual code block language (`True` or `False`)
     - Search language code in... (`Note name`, `Parent folder name`, `Nearest to root folder`)
     - Custom language list
+
+# Installation
+Install the BRAT Plugin from Obsidian Community Plugins or from the [GitHub repository](https://github.com/TfTHacker/obsidian42-brat).
+
+1. Navigate to Settings > BRAT > Beta Plugin List
+2. Click "Add Beta plugin"
+3. Enter `https://github.com/chern-kp/JustAnotherHotkeyPlugin`
+4. Click "Add Plugin"
+5. Enable the plugin to begin using it
+
+## Updating the Plugin
+
+Update the plugin by either:
+* Using the BRAT command `Check for updates to all beta plugins and UPDATE`
+* Using the BRAT settings panel in Obsidian
+
+# Support
+This plugin is in active development. If you have any feature requests or bug reports, please open an issue on the [GitHub repository](https://github.com/chern-kp/JustAnotherHotkeyPlugin).

@@ -141,13 +141,12 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         ],
     });
 
-    //TODO - add functions
     //NOTE - "Move Heading (with content) Up" command (Alt + PageUp)
     plugin.addCommand({
         id: 'move-heading-up',
         name: 'Move Heading (with content) Up',
         editorCallback: (editor: Editor) => {
-            //! plugin.moveHeadingUp(editor);
+            plugin.moveHeadingUp(editor);
         },
         hotkeys: [
             {
@@ -162,7 +161,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         id: 'move-heading-down',
         name: 'Move Heading (with content) Down',
         editorCallback: (editor: Editor) => {
-            //! plugin.moveHeadingDown(editor);
+            plugin.moveHeadingDown(editor);
         },
         hotkeys: [
             {
@@ -266,7 +265,23 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         ],
     });
 
-    //NOTE - Clear selection from current line (Mod + Shift + L)
+
+    //NOTE - Select previous line (Mod + Shift + L)
+    plugin.addCommand({
+        id: 'select-previous-line',
+        name: 'Select Previous Line',
+        editorCallback: (editor: Editor) => {
+            plugin.selectPreviousLine(editor);
+        },
+        hotkeys: [
+            {
+                modifiers: ['Mod', 'Shift'],
+                key: 'L',
+            },
+        ],
+    });
+
+    //NOTE - Clear selection from current line (Mod + Alt + L)
     plugin.addCommand({
         id: 'clear-selection-from-current-line',
         name: 'Clear Selection from Current Line',
@@ -275,7 +290,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         },
         hotkeys: [
             {
-                modifiers: ['Mod', 'Shift'],
+                modifiers: ['Mod', 'Alt'],
                 key: 'L',
             },
         ],

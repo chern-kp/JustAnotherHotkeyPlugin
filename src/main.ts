@@ -436,6 +436,255 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
+//NOTE - Function of "Move Heading (with content) Up" command (Alt + PageUp)
+moveHeadingUp(editor: Editor) {
+    const cursor = editor.getCursor();
+    const lineCount = editor.lineCount();
+
+    // Find current heading and its level
+    let currentHeadingLine = cursor.line;
+    let currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+    const originalCursorLine = cursor.line;
+
+    // If cursor is not on a heading, find the previous heading
+    if (currentHeadingLevel === null) {
+        currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+        if (currentHeadingLine === -1) {
+            new Notice('No heading found above cursor');
+            return;
+        }
+        currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+    }
+
+    // Find the end of current heading's content (including subheadings)
+    let currentBlockEnd = currentHeadingLine + 1;
+    if (currentHeadingLevel !== null) {
+        while (currentBlockEnd < lineCount) {
+            const level = this.getHeadingLevelAtLine(editor, currentBlockEnd);
+            if (level !== null && level <= currentHeadingLevel) {
+                break;
+            }
+            currentBlockEnd++;
+        }
+    }
+
+    // Find the target (previous) heading to swap with
+    let targetHeadingLine = currentHeadingLine - 1;
+    while (targetHeadingLine >= 0) {
+        const level = this.getHeadingLevelAtLine(editor, targetHeadingLine);
+        if (level !== null) {
+            break;
+        }
+        targetHeadingLine--;
+    }
+
+    if (targetHeadingLine < 0) {
+        new Notice('Already at the top');
+        return;
+    }
+
+    // Find the end of target heading's content
+    const targetHeadingLevel = this.getHeadingLevelAtLine(editor, targetHeadingLine);
+    if (targetHeadingLevel === null) {
+        return;
+    }
+    let targetBlockEnd = targetHeadingLine + 1;
+    while (targetBlockEnd < currentHeadingLine) {
+        const level = this.getHeadingLevelAtLine(editor, targetBlockEnd);
+        if (level !== null && level <= targetHeadingLevel) {
+            break;
+        }
+        targetBlockEnd++;
+    }
+
+    // Find the heading above target for notice
+    let aboveHeadingLine = targetHeadingLine - 1;
+    while (aboveHeadingLine >= 0) {
+        const level = this.getHeadingLevelAtLine(editor, aboveHeadingLine);
+        if (level !== null) {
+            break;
+        }
+        aboveHeadingLine--;
+    }
+
+    // Prepare heading texts for notice
+    const currentHeadingText = editor.getLine(currentHeadingLine).replace(/^#+\s+/, '');
+    const targetHeadingText = editor.getLine(targetHeadingLine).replace(/^#+\s+/, '');
+    const aboveHeadingText = aboveHeadingLine >= 0 ?
+        editor.getLine(aboveHeadingLine).replace(/^#+\s+/, '') : 'document start';
+
+    // Calculate cursor offset from the start of the current block
+    const cursorOffset = {
+        lines: originalCursorLine - currentHeadingLine,
+        ch: cursor.ch
+    };
+
+    // Get content blocks with proper line endings
+    const currentBlock = editor.getRange(
+        { line: currentHeadingLine, ch: 0 },
+        { line: currentBlockEnd - 1, ch: editor.getLine(currentBlockEnd - 1).length }
+    );
+
+    const targetBlock = editor.getRange(
+        { line: targetHeadingLine, ch: 0 },
+        { line: targetBlockEnd - 1, ch: editor.getLine(targetBlockEnd - 1).length }
+    );
+
+    // Ensure proper line endings
+    const currentBlockWithEnding = currentBlock.endsWith('\n') ? currentBlock : currentBlock + '\n';
+    const targetBlockWithEnding = targetBlock.endsWith('\n') ? targetBlock : targetBlock + '\n';
+
+    // Store the current block's line count
+    const currentBlockLines = currentBlockWithEnding.split('\n').length - 1;
+
+    // Perform the swap
+    editor.replaceRange(
+        '',
+        { line: targetHeadingLine, ch: 0 },
+        { line: currentBlockEnd, ch: 0 }
+    );
+
+    editor.replaceRange(
+        currentBlockWithEnding + targetBlockWithEnding,
+        { line: targetHeadingLine, ch: 0 }
+    );
+
+    // Calculate new cursor position
+    const newLine = targetHeadingLine + cursorOffset.lines;
+    const newPosition = {
+        line: Math.min(newLine, targetHeadingLine + currentBlockLines - 1),
+        ch: cursorOffset.ch
+    };
+
+    // Restore cursor position
+    editor.setCursor(newPosition);
+    editor.scrollIntoView({ from: newPosition, to: newPosition }, true);
+
+    // Show detailed notice
+    new Notice(`Heading "${currentHeadingText}" moved above. Now located below "${aboveHeadingText}" and above "${targetHeadingText}"`);
+}
+
+//NOTE - Function of "Move Heading (with content) Down" command (Alt + PageDown)
+moveHeadingDown(editor: Editor) {
+    const cursor = editor.getCursor();
+    const lineCount = editor.lineCount();
+
+    // Find current heading and its level
+    let currentHeadingLine = cursor.line;
+    let currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+    const originalCursorLine = cursor.line;
+
+    // If cursor is not on a heading, find the previous heading
+    if (currentHeadingLevel === null) {
+        currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+        if (currentHeadingLine === -1) {
+            new Notice('No heading found above cursor');
+            return;
+        }
+        currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+    }
+
+    // Find the end of current heading's content (including subheadings)
+    let currentBlockEnd = currentHeadingLine + 1;
+    if (currentHeadingLevel !== null) {
+        while (currentBlockEnd < lineCount) {
+            const level = this.getHeadingLevelAtLine(editor, currentBlockEnd);
+            if (level !== null && level <= currentHeadingLevel) {
+                break;
+            }
+            currentBlockEnd++;
+        }
+    }
+
+    // Find the target (next) heading to swap with
+    const targetHeadingLine = currentBlockEnd;
+    if (targetHeadingLine >= lineCount) {
+        new Notice('Already at the bottom');
+        return;
+    }
+
+    // Find the end of target heading's content
+    const targetHeadingLevel = this.getHeadingLevelAtLine(editor, targetHeadingLine);
+    if (targetHeadingLevel === null) {
+        return;
+    }
+    let targetBlockEnd = targetHeadingLine + 1;
+    while (targetBlockEnd < lineCount) {
+        const level = this.getHeadingLevelAtLine(editor, targetBlockEnd);
+        if (level !== null && level <= targetHeadingLevel) {
+            break;
+        }
+        targetBlockEnd++;
+    }
+
+    // Find the heading below target for notice
+    let belowHeadingLine = targetBlockEnd;
+    while (belowHeadingLine < lineCount) {
+        const level = this.getHeadingLevelAtLine(editor, belowHeadingLine);
+        if (level !== null) {
+            break;
+        }
+        belowHeadingLine++;
+    }
+
+    // Prepare heading texts for notice
+    const currentHeadingText = editor.getLine(currentHeadingLine).replace(/^#+\s+/, '');
+    const targetHeadingText = editor.getLine(targetHeadingLine).replace(/^#+\s+/, '');
+    const belowHeadingText = belowHeadingLine < lineCount ?
+        editor.getLine(belowHeadingLine).replace(/^#+\s+/, '') : 'document end';
+
+    // Calculate cursor offset from the start of the current block
+    const cursorOffset = {
+        lines: originalCursorLine - currentHeadingLine,
+        ch: cursor.ch
+    };
+
+    // Get content blocks with proper line endings
+    const currentBlock = editor.getRange(
+        { line: currentHeadingLine, ch: 0 },
+        { line: currentBlockEnd - 1, ch: editor.getLine(currentBlockEnd - 1).length }
+    );
+
+    const targetBlock = editor.getRange(
+        { line: targetHeadingLine, ch: 0 },
+        { line: targetBlockEnd - 1, ch: editor.getLine(targetBlockEnd - 1).length }
+    );
+
+    // Ensure proper line endings
+    const currentBlockWithEnding = currentBlock.endsWith('\n') ? currentBlock : currentBlock + '\n';
+    const targetBlockWithEnding = targetBlock.endsWith('\n') ? targetBlock : targetBlock + '\n';
+
+    // Store blocks' line counts
+    const targetBlockLines = targetBlockWithEnding.split('\n').length - 1;
+    const currentBlockLines = currentBlockWithEnding.split('\n').length - 1;
+
+    // Perform the swap
+    editor.replaceRange(
+        '',
+        { line: currentHeadingLine, ch: 0 },
+        { line: targetBlockEnd, ch: 0 }
+    );
+
+    editor.replaceRange(
+        targetBlockWithEnding + currentBlockWithEnding,
+        { line: currentHeadingLine, ch: 0 }
+    );
+
+    // Calculate new cursor position
+    const newLine = currentHeadingLine + targetBlockLines + cursorOffset.lines;
+    const newPosition = {
+        line: Math.min(newLine, currentHeadingLine + targetBlockLines + currentBlockLines - 1),
+        ch: cursorOffset.ch
+    };
+
+    // Restore cursor position
+    editor.setCursor(newPosition);
+    editor.scrollIntoView({ from: newPosition, to: newPosition }, true);
+
+    // Show detailed notice
+    new Notice(`Heading "${currentHeadingText}" moved below. Now located below "${targetHeadingText}" and above "${belowHeadingText}"`);
+}
+
 	//!SECTION - Heading commands
 
 	//SECTION - Link commands
@@ -616,11 +865,40 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			const fromPos = { line: cursor.line, ch: 0 };
 			const toPos = { line: cursor.line, ch: lineText.length };
 			editor.setSelection(fromPos, toPos);
-			editor.scrollIntoView({ from: toPos, to: toPos }, true);
 		}
 	}
 
-	//NOTE - Function of "Clear selection from current line" command (CTRL + SHIFT + L).
+	//NOTE - Function of "Select previous line" command (CTRL + Shift + L).
+	selectPreviousLine(editor: Editor) {
+		const selection = editor.getSelection();
+		const cursor = editor.getCursor();
+
+		// Check if there is a selection
+		if (selection.length > 0) {
+			const currentSelection = editor.listSelections()[0];
+			const firstSelectedLine = currentSelection.anchor.line;
+
+			// If the first selected line is not the first line of the editor
+			if (firstSelectedLine > 0) {
+				const toPos = currentSelection.head;
+				const prevLine = firstSelectedLine - 1;
+				const fromPos = { line: prevLine, ch: 0 };
+
+				editor.setSelection(fromPos, toPos);
+			}
+		} else {
+			// If there is no selection and not on the first line
+			if (cursor.line > 0) {
+				const prevLine = cursor.line - 1;
+				const lineText = editor.getLine(prevLine);
+				const fromPos = { line: prevLine, ch: 0 };
+				const toPos = { line: prevLine, ch: lineText.length };
+
+				editor.setSelection(fromPos, toPos);
+			}
+		}
+	}
+	//NOTE - Function of "Clear selection from current line" command (CTRL + Alt + L).
 	clearSelectionFromCurrentLine(editor: Editor) {
 		const selection = editor.getSelection();
 

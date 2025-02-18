@@ -25,10 +25,12 @@ In development
 | Select Full Link                             | `Ctrl/Cmd + Shift + Alt + \` | Selects the entire internal link, including the surrounding brackets.                                                                               |
 | Paste As Code Block                          | `Ctrl/Cmd + Alt + V`         | Selects the entire internal link, including the surrounding brackets.                                                                               |
 | Select Current Line                          | `Ctrl/Cmd + L`               | Selects the entire logical line of text (until next line break). **Repeatable** for next lines.                                                     |
-| Clear Selection of Current Line              | `Ctrl/Cmd + Shift + L`       | Clears selection of current logical line of text (until previous line break). **Repeatable** for previous lines.                                    |
+| Select Previous Line                         | `Ctrl/Cmd + Shift + L`       | Selects previous line of text (until previous line break). **Repeatable** for previous lines.                                                       |
+| Clear Selection of Current Line              | `Ctrl/Cmd + Alt + L`         | Clears selection of current logical line of text (until previous line break). **Repeatable** for previous lines.                                    |
 | Select to Line Start                         | `Ctrl/Cmd + Shift + <`       | Selects text from the current position to the start of the line. Ignores list markers.                                                              |
 | Select to Line End                           | `Ctrl/Cmd + Shift + >`       | Selects text from the current position to the end of the line.                                                                                      |
-
+| Move Heading Up                              | `Alt + PageUp`               | Moves entire heading section (including content) up, swapping with the heading above.                                                               |
+| Move Heading Down                            | `Alt + PageDown`             | Moves entire heading section (including content) down, swapping with the heading below.                                                             |
 
 **New options in settings:**
 

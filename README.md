@@ -39,7 +39,6 @@ In development
 - Turn off TAB key indentation (`True` or `False`)
 - Copy inline code on double click (`True` or `False`)
 - Use contextual code block language (`True` or `False`)
-    - Use contextual code block language (`True` or `False`)
     - Search language code in... (`Note name`, `Parent folder name`, `Nearest to root folder`)
     - Custom language list
 

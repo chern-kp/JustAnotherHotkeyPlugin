@@ -3,33 +3,43 @@ import { Editor, Notice, Plugin } from 'obsidian';
 import { registerCommands } from './hotkeys';
 import { keymap } from '@codemirror/view';
 import { Prec } from '@codemirror/state';
+//Imports of other files of the plugin
 import { JustAnotherHotkeyPluginSettingTab } from './settings';
+import { CopyContentFeature } from './features/copyContentFeature';
 
-
+//ANCHOR - Settings Interface - We use it to use values from the settings tab in code.
 interface JustAnotherHotkeyPluginSettings {
 	disableTabIndentation: boolean;
 	copyInlineCodeOnDoubleClick: boolean;
 	useContextualCodeBlockLanguage: boolean;
 	languageSearchLocation: 'noteName' | 'parentFolder' | 'nearestToRootAncestorFolder' | 'tags';
 	codeBoxLanguages: string[];
+	copyContentFeature: boolean;
 }
 
+//ANCHOR - Default Settings - Write the default values for the settings here.
 const DEFAULT_SETTINGS: JustAnotherHotkeyPluginSettings = {
 	disableTabIndentation: false,
 	copyInlineCodeOnDoubleClick: false,
 	useContextualCodeBlockLanguage: false,
 	languageSearchLocation: 'noteName',
 	codeBoxLanguages: [],
+	copyContentFeature: true,
 }
 
-export default class JustAnotherHotkeyPlugin extends Plugin {
-	settings: JustAnotherHotkeyPluginSettings;
 
+export default class JustAnotherHotkeyPlugin extends Plugin {
+
+	settings: JustAnotherHotkeyPluginSettings;
+	copyContentFeature: CopyContentFeature | null = null;
+
+	//ANCHOR - On Load - Only happens once
 	async onload() {
 		await this.loadSettings();
+		console.log('Settings loaded:', this.settings);
 		registerCommands(this); //! for hotkeys
 
-		// for "Copy inline code on double click" setting
+		//NOTE - for "Copy inline code on double click" setting
 		this.registerDomEvent(document, 'dblclick', (evt: MouseEvent) => {
 			if (!this.settings.copyInlineCodeOnDoubleClick) {
 				return;
@@ -61,17 +71,43 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}]));
 		this.registerEditorExtension([tabKeymap]);
 
+		//NOTE - Initialize CopyContentFeature
+		if (this.settings.copyContentFeature) {
+			this.copyContentFeature = new CopyContentFeature(this.app, this);
+			this.copyContentFeature.initialize();
+		}
+
 		this.addSettingTab(new JustAnotherHotkeyPluginSettingTab(this.app, this));
+
+		//NOTE - Handles editor state changes to keep copy buttons visibility and position.  Without it, copy buttons would be static and misaligned with content.
+		this.registerEvent(
+			this.app.workspace.on('editor-change', () => {
+				if (this.settings.copyContentFeature) {
+					if (!this.copyContentFeature) {
+						this.copyContentFeature = new CopyContentFeature(this.app, this);
+					}
+					this.copyContentFeature.initialize();
+				} else {
+					this.copyContentFeature = null;
+				}
+			})
+		);
 	}
 
+	//ANCHOR - On Unload - When the plugin is disabled or deleted
 	onunload() {
+		//Removes the copy content button
+		if (this.copyContentFeature) {
+			this.copyContentFeature.cleanup();
+		}
 	}
 
-
+	//ANCHOR - Loads the settings from the storage. Happens in onLoad()
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
 
+	//ANCHOR - Saves the settings to the storage. Happens when the settings are changed in the settings tab.
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}

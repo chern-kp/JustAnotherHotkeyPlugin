@@ -1,8 +1,10 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import JustAnotherHotkeyPlugin from './main';
+import { CopyContentFeature } from './features/copyContentFeature';
 
 export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
     plugin: JustAnotherHotkeyPlugin;
+
 
     constructor(app: App, plugin: JustAnotherHotkeyPlugin) {
         super(app, plugin);
@@ -12,6 +14,8 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
     display(): void {
         const { containerEl } = this;
         containerEl.empty();
+
+        //NOTE - New Settings Added Here
 
         new Setting(containerEl)
             .setName('Turn off TAB key indentation')
@@ -72,6 +76,31 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                         .filter(lang => lang.length > 0);
                     await this.plugin.saveSettings();
                 }));
+
+                new Setting(containerEl)
+            .setName('Turn on "Copy content of files in folder/tag" feature')
+            .setDesc('Turns on new buttons in file explorer and tag pane.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.copyContentFeature)
+                .onChange(async (value) => {
+                    this.plugin.settings.copyContentFeature = value;
+                    await this.plugin.saveSettings();
+
+                    // Initialize CopyContentFeature again every time the setting changes. It adds/removes the "copy content" buttons.
+                    if (value) {
+                        if (!this.plugin.copyContentFeature) {
+                            this.plugin.copyContentFeature = new CopyContentFeature(this.app, this.plugin);
+                        }
+                        this.plugin.copyContentFeature.initialize();
+                    } else {
+                        if (this.plugin.copyContentFeature) {
+                            this.plugin.copyContentFeature.cleanup();
+                            this.plugin.copyContentFeature = null;
+                        }
+                    }
+                }));
+
+
 
     }
 }

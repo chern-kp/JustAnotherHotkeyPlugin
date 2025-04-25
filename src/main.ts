@@ -30,16 +30,24 @@ const DEFAULT_SETTINGS: JustAnotherHotkeyPluginSettings = {
 
 export default class JustAnotherHotkeyPlugin extends Plugin {
 
+
 	settings: JustAnotherHotkeyPluginSettings;
 	copyContentFeature: CopyContentFeature | null = null;
 
-	//ANCHOR - On Load - Only happens once
+	/**
+	 * Loads the settings and registers commands.
+	 */
 	async onload() {
 		await this.loadSettings();
 		console.log('Settings loaded:', this.settings);
 		registerCommands(this); //! for hotkeys
 
-		//NOTE - for "Copy inline code on double click" setting
+		/**
+		 * Registers a double-click event handler to copy inline code content.
+		 * When a user double-clicks on an element with inline code (having the 'cm-inline-code' class),
+		 * the content of this element is copied to the clipboard and a notification is displayed.
+		 * This function is only active if the copyInlineCodeOnDoubleClick option is enabled in settings.
+		 */
 		this.registerDomEvent(document, 'dblclick', (evt: MouseEvent) => {
 			if (!this.settings.copyInlineCodeOnDoubleClick) {
 				return;
@@ -59,7 +67,11 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			}
 		});
 
-		//NOTE - Turn Off "Tab" key indentation, if the setting is turned on.
+		/**
+		 * Disables the Tab key indentation in the editor, when the disableTabIndentation setting is enabled.
+		 * @returns true (stops further processing) if disableTabIndentation is enabled
+		 * @returns false (allows normal Tab behavior) if disableTabIndentation is disabled
+		 */
 		const tabKeymap = Prec.highest(keymap.of([{
 			key: 'Tab',
 			run: (): boolean => {
@@ -69,9 +81,16 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 				return false;
 			}
 		}]));
+		/**
+		 * Registers the tabKeymap as an editor extension.
+		 * This allows the Tab key to be intercepted and handled by the plugin.
+		 */
 		this.registerEditorExtension([tabKeymap]);
 
-		//NOTE - Initialize CopyContentFeature
+		/**
+		 * Initializes the CopyContentFeature if the copyContentFeature setting is enabled.
+		 * Creates a button to copy content from the editor.
+		 */
 		if (this.settings.copyContentFeature) {
 			this.copyContentFeature = new CopyContentFeature(this.app, this);
 			this.copyContentFeature.initialize();
@@ -94,7 +113,9 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		);
 	}
 
-	//ANCHOR - On Unload - When the plugin is disabled or deleted
+	/**
+	 * Unloads the plugin.
+	 */
 	onunload() {
 		//Removes the copy content button
 		if (this.copyContentFeature) {
@@ -102,24 +123,40 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
-	//ANCHOR - Loads the settings from the storage. Happens in onLoad()
+	/**
+	 * Loads the settings from the storage.
+	 */
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
 
-	//ANCHOR - Saves the settings to the storage. Happens when the settings are changed in the settings tab.
+	/**
+	 * Saves settings to the storage.
+	 * Happens when the settings are changed in the settings tab.
+	 */
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
 
 	//SECTION - Additional functions
-	//NOTE - Additional function for "Move to Next Heading" and "Move to Previous Heading" commands. Scrolls the editor (moves on the screen) to the position of the heading.
+	/**
+	 * NOTE -Additional function for "Move to Next Heading" and "Move to Previous Heading" commands.
+	 * Scrolls the editor (moves on the screen) to the position of the heading.
+	 * @param editor - The editor to scroll.
+	 * @param pos - The position to scroll to.
+	 */
 	private scrollToPosition(editor: Editor, pos: CodeMirror.Position) {
 		editor.setCursor(pos);
 		editor.scrollIntoView({ from: pos, to: pos }, true);
 	}
 
-	//NOTE - Additional function for "Select to End of Current Heading" command. Returns the level of the heading at the provided line number.
+	/**
+	 * NOTE - Additional function for "Select to End of Current Heading" command.
+	 * Used to get the level of the heading at the provided line number.
+	 * @param editor - The editor to get the heading level from.
+	 * @param line - The line number to get the heading level from.
+	 * @returns The level of the heading at the provided line number.
+	 */
 	private getHeadingLevelAtLine(editor: Editor, line: number): number | null {
 		const lineText = editor.getLine(line);
 		const match = lineText.match(/^(#+)\s/);
@@ -129,7 +166,15 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		return null;
 	}
 
-	//NOTE - Additional function for "Move to Next Heading" and "Move to Previous Heading" commands. Finds the next heading line in the specified direction (next or previous).
+	/**
+	 * NOTE - Additional function for "Move to Next Heading" and "Move to Previous Heading" commands.
+	 * Finds the next heading line in the specified direction (next or previous).
+	 * @param editor - The editor to find the heading line in.
+	 * @param startLine - The line number to start the search from.
+	 * @param direction - The direction to search in (next or previous).
+	 * @param level - The level of the heading to search for.
+	 * @returns The line number of the next heading line.
+	 */
 	private findHeadingLine(editor: Editor, startLine: number, direction: 'next' | 'previous', level?: number): number {
 		const lineCount = editor.lineCount();
 		const delta = direction === 'next' ? 1 : -1;
@@ -148,7 +193,11 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		return -1;
 	}
 
-	//NOTE - Additional function for "Select to End of Current Heading" command. Selects the heading line from the current cursor position.
+	/**
+	 * NOTE - Additional function for Link commands. Finds the link under the cursor.
+	 * @param editor - The editor to find the link under the cursor from.
+	 * @returns The line text, match, start, and end of the link under the cursor.
+	 */
 	private findLinkUnderCursor(editor: Editor): { lineText: string, match: RegExpExecArray, start: number, end: number } | null {
 		const cursor = editor.getCursor();
 		const lineText = editor.getLine(cursor.line);
@@ -165,7 +214,10 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		return null;
 	}
 
-	//NOTE - Additional function for "Paste as Code Block" command. Finds the language of the code block based on the context (settings).
+	/**
+	 * NOTE - Additional function for "Paste as Code Block" command. Finds the language of the code block based on the context (settings).
+	 * @returns The language of the code block.
+	 */
 	private determineCodeLanguage(): string | null {
 
 		if (!this.settings.useContextualCodeBlockLanguage) {
@@ -219,7 +271,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 				break;
 
 			case 'tags':
-				// TODO
+				// TODO - Implement this
 				console.log('todo');
 				break;
 		}
@@ -229,7 +281,12 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	//!SECTION - Additional functions
 
 	//SECTION - Heading commands
-	//NOTE - Function of "Select to the End of Current Heading" command (CTRL + S).
+	/**
+	 * NOTE - Function of "Select to the End of Current Heading" command (CTRL + S).
+	 * @summary Selects text from the current position to the end of the current heading (to the next heading).
+	 * @see {@link registerCommands} id: 'select-to-end-of-heading'
+	 * @param editor - The editor to make changes in.
+	 */
 	selectToEndOfCurrentHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const nextHeadingLine = this.findHeadingLine(editor, cursor.line, 'next');
@@ -254,7 +311,12 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		editor.scrollIntoView({ from: toPos, to: toPos }, true);
 	}
 
-	//NOTE - Function of "Select to the Beginning of Current Heading" command (CTRL + SHIFT + S).
+	/**
+	 * NOTE - Function of "Select to the Beginning of Current Heading" command (CTRL + SHIFT + S).
+	 * @summary Selects text from the current position to the beginning of the current heading (to the previous heading).
+	 * @see {@link registerCommands} id: 'select-to-beginning-of-heading'
+	 * @param editor - The editor to make changes in.
+	 */
 	selectToBeginningOfCurrentHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const currentLineText = editor.getLine(cursor.line);
@@ -286,7 +348,12 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		editor.setSelection(fromPos, toPos);
 	}
 
-	//NOTE - Function of "Select Current Heading" command (CTRL + ALT + S).
+	/**
+	 * NOTE - Function of "Select Current Heading" command (CTRL + ALT + S).
+	 * @summary Selects the entire current heading section.
+	 * @see {@link registerCommands} id: 'select-current-heading'
+	 * @param editor - The editor to make changes in.
+	 */
 	selectCurrentHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const lineCount = editor.lineCount();
@@ -314,51 +381,12 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		editor.scrollIntoView({ from: toPos, to: toPos }, true);
 	}
 
-	//NOTE - Function of "Select All Current Level Headings" command (CTRL + ALT + PAGE DOWN).
-	selectAllCurrentLevelHeadings(editor: Editor) {
-		const cursor = editor.getCursor();
-		const lineCount = editor.lineCount();
-
-		let currentHeadingLine = -1;
-		let currentHeadingLevel = 0;
-		for (let i = cursor.line; i >= 0; i--) {
-			const level = this.getHeadingLevelAtLine(editor, i);
-			if (level !== null) {
-				currentHeadingLine = i;
-				currentHeadingLevel = level;
-				break;
-			}
-		}
-
-		if (currentHeadingLine === -1) {
-			new Notice('No heading found at the cursor position.');
-			return;
-		}
-
-		const headings = [];
-		for (let i = 0; i < lineCount; i++) {
-			const level = this.getHeadingLevelAtLine(editor, i);
-			if (level === currentHeadingLevel) {
-				headings.push(i);
-			}
-		}
-
-		if (headings.length === 0) {
-			new Notice('No headings of the current level found.');
-			return;
-		}
-
-		const fromPos = { line: headings[0], ch: 0 };
-		const toLine = editor.getLine(headings[headings.length - 1] + 1) ? headings[headings.length - 1] + 1 : lineCount - 1;
-		const toPos = { line: toLine, ch: editor.getLine(toLine).length };
-
-		editor.setSelection(fromPos, toPos);
-		editor.scrollIntoView({ from: toPos, to: toPos }, true);
-
-		new Notice(`${headings.length} headings of level ${currentHeadingLevel} were selected.`);
-	}
-
-	//NOTE - Function of "Select Current and Child Headings" command (CTRL + ALT + SHIFT + S).
+	/**
+	 * NOTE - Function of "Select Current and Child Headings" command (CTRL + ALT + SHIFT + S).
+	 * @summary Selects the current heading and all its child headings.
+	 * @see {@link registerCommands} id: 'select-current-and-child-headings'
+	 * @param editor - The editor to make changes in.
+	 */
 	selectCurrentAndChildHeadings(editor: Editor) {
 		const cursor = editor.getCursor();
 		const lineCount = editor.lineCount();
@@ -414,7 +442,65 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
-	//NOTE - Function of "Move to Next Heading Level 1-6" commands (CTRL + 1, CTRL + 2 ... CTRL + 6).
+	/**
+	 * NOTE - Function of "Select All Current Level Headings" command (CTRL + ALT + PAGE DOWN).
+	 * @summary Selects all headings of the current level.
+	 * @see {@link registerCommands} id: 'select-all-current-level-headings'
+	 * @param editor - The editor to make changes in.
+	 */
+	selectAllCurrentLevelHeadings(editor: Editor) {
+		const cursor = editor.getCursor();
+		const lineCount = editor.lineCount();
+
+		let currentHeadingLine = -1;
+		let currentHeadingLevel = 0;
+		for (let i = cursor.line; i >= 0; i--) {
+			const level = this.getHeadingLevelAtLine(editor, i);
+			if (level !== null) {
+				currentHeadingLine = i;
+				currentHeadingLevel = level;
+				break;
+			}
+		}
+
+		if (currentHeadingLine === -1) {
+			new Notice('No heading found at the cursor position.');
+			return;
+		}
+
+		const headings = [];
+		for (let i = 0; i < lineCount; i++) {
+			const level = this.getHeadingLevelAtLine(editor, i);
+			if (level === currentHeadingLevel) {
+				headings.push(i);
+			}
+		}
+
+		if (headings.length === 0) {
+			new Notice('No headings of the current level found.');
+			return;
+		}
+
+		const fromPos = { line: headings[0], ch: 0 };
+		const toLine = editor.getLine(headings[headings.length - 1] + 1) ? headings[headings.length - 1] + 1 : lineCount - 1;
+		const toPos = { line: toLine, ch: editor.getLine(toLine).length };
+
+		editor.setSelection(fromPos, toPos);
+		editor.scrollIntoView({ from: toPos, to: toPos }, true);
+
+		new Notice(`${headings.length} headings of level ${currentHeadingLevel} were selected.`);
+	}
+
+
+	/**
+	 * NOTE - Function of "Move to Next Heading Level 1-6" commands (CTRL + 1, CTRL + 2 ... CTRL + 6).
+	 * @summary Moves the cursor to the next heading of the specified level.
+	 * Uses the {@link findHeadingLine} function to find the next heading of the specified level.
+	 * Uses the {@link scrollToPosition} function to scroll to the position of the heading.
+	 * @see {@link registerCommands} id: 'move-to-next-heading-level-1-6'
+	 * @param editor - The editor to make changes in.
+	 * @param level - The level of the heading to move to.
+	 */
 	moveToNextHeadingOfLevel(editor: Editor, level: number) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'next', level);
@@ -431,7 +517,15 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
-	//NOTE - Function of "Move to Previous Heading Level 1-6" commands (CTRL + SHIFT + 1, CTRL + SHIFT + 2 ... CTRL + SHIFT + 6).
+	/**
+	 * NOTE - Function of "Move to Previous Heading Level 1-6" commands (CTRL + SHIFT + 1, CTRL + SHIFT + 2 ... CTRL + SHIFT + 6).
+	 * @summary Moves the cursor to the previous heading of the specified level.
+	 * Uses the {@link findHeadingLine} function to find the previous heading of the specified level.
+	 * Uses the {@link scrollToPosition} function to scroll to the position of the heading.
+	 * @see {@link registerCommands} id: 'move-to-previous-heading-level-1-6'
+	 * @param editor - The editor to make changes in.
+	 * @param level - The level of the heading to move to.
+	 */
 	moveToPreviousHeadingOfLevel(editor: Editor, level: number) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous', level);
@@ -444,7 +538,14 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
-	//NOTE - Function of "Move to Next Heading" command (ALT + PAGE DOWN).
+	/**
+	 * NOTE - Function of "Move to Next Heading" command (ALT + PAGE DOWN).
+	 * @summary Moves the cursor to the next heading.
+	 * Uses the {@link findHeadingLine} function to find the next heading.
+	 * Uses the {@link scrollToPosition} function to scroll to the position of the heading.
+	 * @see {@link registerCommands} id: 'move-cursor-to-next-heading'
+	 * @param editor - The editor to make changes in.
+	 */
 	moveCursorToNextHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'next');
@@ -460,7 +561,14 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
-	//NOTE - Function of "Move to Previous Heading" command (ALT + PAGE UP).
+	/**
+	 * NOTE - Function of "Move to Previous Heading" command (ALT + PAGE UP).
+	 * @summary Moves the cursor to the previous heading.
+	 * Uses the {@link findHeadingLine} function to find the previous heading.
+	 * Uses the {@link scrollToPosition} function to scroll to the position of the heading.
+	 * @see {@link registerCommands} id: 'move-cursor-to-previous-heading'
+	 * @param editor - The editor to make changes in.
+	 */
 	moveCursorToPreviousHeading(editor: Editor) {
 		const cursor = editor.getCursor();
 		const foundHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
@@ -472,259 +580,283 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 	}
 
-//NOTE - Function of "Move Heading (with content) Up" command (Alt + PageUp)
-moveHeadingUp(editor: Editor) {
-    const cursor = editor.getCursor();
-    const lineCount = editor.lineCount();
+	/**
+	 * NOTE - Function of "Move Heading (with content) Up" command (Alt + PageUp).
+	 * @summary Moves entire heading section (including content) up, swapping with the heading above.
+	 * Uses the {@link findHeadingLine} function to find the current heading.
+	 * Uses the {@link getHeadingLevelAtLine} function to get the level of the current heading.
+	 * Uses the {@link scrollToPosition} function to scroll to the position of the heading.
+	 * @see {@link registerCommands} id: 'move-heading-up'
+	 * @param editor - The editor to make changes in.
+	 * @since 1.0.11
+	 */
+	moveHeadingUp(editor: Editor) {
+		const cursor = editor.getCursor();
+		const lineCount = editor.lineCount();
 
-    // Find current heading and its level
-    let currentHeadingLine = cursor.line;
-    let currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
-    const originalCursorLine = cursor.line;
+		// Find current heading and its level
+		let currentHeadingLine = cursor.line;
+		let currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+		const originalCursorLine = cursor.line;
 
-    // If cursor is not on a heading, find the previous heading
-    if (currentHeadingLevel === null) {
-        currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
-        if (currentHeadingLine === -1) {
-            new Notice('No heading found above cursor');
-            return;
-        }
-        currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
-    }
+		// If cursor is not on a heading, find the previous heading
+		if (currentHeadingLevel === null) {
+			currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+			if (currentHeadingLine === -1) {
+				new Notice('No heading found above cursor');
+				return;
+			}
+			currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+		}
 
-    // Find the end of current heading's content (including subheadings)
-    let currentBlockEnd = currentHeadingLine + 1;
-    if (currentHeadingLevel !== null) {
-        while (currentBlockEnd < lineCount) {
-            const level = this.getHeadingLevelAtLine(editor, currentBlockEnd);
-            if (level !== null && level <= currentHeadingLevel) {
-                break;
-            }
-            currentBlockEnd++;
-        }
-    }
+		// Find the end of current heading's content (including subheadings)
+		let currentBlockEnd = currentHeadingLine + 1;
+		if (currentHeadingLevel !== null) {
+			while (currentBlockEnd < lineCount) {
+				const level = this.getHeadingLevelAtLine(editor, currentBlockEnd);
+				if (level !== null && level <= currentHeadingLevel) {
+					break;
+				}
+				currentBlockEnd++;
+			}
+		}
 
-    // Find the target (previous) heading to swap with
-    let targetHeadingLine = currentHeadingLine - 1;
-    while (targetHeadingLine >= 0) {
-        const level = this.getHeadingLevelAtLine(editor, targetHeadingLine);
-        if (level !== null) {
-            break;
-        }
-        targetHeadingLine--;
-    }
+		// Find the target (previous) heading to swap with
+		let targetHeadingLine = currentHeadingLine - 1;
+		while (targetHeadingLine >= 0) {
+			const level = this.getHeadingLevelAtLine(editor, targetHeadingLine);
+			if (level !== null) {
+				break;
+			}
+			targetHeadingLine--;
+		}
 
-    if (targetHeadingLine < 0) {
-        new Notice('Already at the top');
-        return;
-    }
+		if (targetHeadingLine < 0) {
+			new Notice('Already at the top');
+			return;
+		}
 
-    // Find the end of target heading's content
-    const targetHeadingLevel = this.getHeadingLevelAtLine(editor, targetHeadingLine);
-    if (targetHeadingLevel === null) {
-        return;
-    }
-    let targetBlockEnd = targetHeadingLine + 1;
-    while (targetBlockEnd < currentHeadingLine) {
-        const level = this.getHeadingLevelAtLine(editor, targetBlockEnd);
-        if (level !== null && level <= targetHeadingLevel) {
-            break;
-        }
-        targetBlockEnd++;
-    }
+		// Find the end of target heading's content
+		const targetHeadingLevel = this.getHeadingLevelAtLine(editor, targetHeadingLine);
+		if (targetHeadingLevel === null) {
+			return;
+		}
+		let targetBlockEnd = targetHeadingLine + 1;
+		while (targetBlockEnd < currentHeadingLine) {
+			const level = this.getHeadingLevelAtLine(editor, targetBlockEnd);
+			if (level !== null && level <= targetHeadingLevel) {
+				break;
+			}
+			targetBlockEnd++;
+		}
 
-    // Find the heading above target for notice
-    let aboveHeadingLine = targetHeadingLine - 1;
-    while (aboveHeadingLine >= 0) {
-        const level = this.getHeadingLevelAtLine(editor, aboveHeadingLine);
-        if (level !== null) {
-            break;
-        }
-        aboveHeadingLine--;
-    }
+		// Find the heading above target for notice
+		let aboveHeadingLine = targetHeadingLine - 1;
+		while (aboveHeadingLine >= 0) {
+			const level = this.getHeadingLevelAtLine(editor, aboveHeadingLine);
+			if (level !== null) {
+				break;
+			}
+			aboveHeadingLine--;
+		}
 
-    // Prepare heading texts for notice
-    const currentHeadingText = editor.getLine(currentHeadingLine).replace(/^#+\s+/, '');
-    const targetHeadingText = editor.getLine(targetHeadingLine).replace(/^#+\s+/, '');
-    const aboveHeadingText = aboveHeadingLine >= 0 ?
-        editor.getLine(aboveHeadingLine).replace(/^#+\s+/, '') : 'document start';
+		// Prepare heading texts for notice
+		const currentHeadingText = editor.getLine(currentHeadingLine).replace(/^#+\s+/, '');
+		const targetHeadingText = editor.getLine(targetHeadingLine).replace(/^#+\s+/, '');
+		const aboveHeadingText = aboveHeadingLine >= 0 ?
+			editor.getLine(aboveHeadingLine).replace(/^#+\s+/, '') : 'document start';
 
-    // Calculate cursor offset from the start of the current block
-    const cursorOffset = {
-        lines: originalCursorLine - currentHeadingLine,
-        ch: cursor.ch
-    };
+		// Calculate cursor offset from the start of the current block
+		const cursorOffset = {
+			lines: originalCursorLine - currentHeadingLine,
+			ch: cursor.ch
+		};
 
-    // Get content blocks with proper line endings
-    const currentBlock = editor.getRange(
-        { line: currentHeadingLine, ch: 0 },
-        { line: currentBlockEnd - 1, ch: editor.getLine(currentBlockEnd - 1).length }
-    );
+		// Get content blocks with proper line endings
+		const currentBlock = editor.getRange(
+			{ line: currentHeadingLine, ch: 0 },
+			{ line: currentBlockEnd - 1, ch: editor.getLine(currentBlockEnd - 1).length }
+		);
 
-    const targetBlock = editor.getRange(
-        { line: targetHeadingLine, ch: 0 },
-        { line: targetBlockEnd - 1, ch: editor.getLine(targetBlockEnd - 1).length }
-    );
+		const targetBlock = editor.getRange(
+			{ line: targetHeadingLine, ch: 0 },
+			{ line: targetBlockEnd - 1, ch: editor.getLine(targetBlockEnd - 1).length }
+		);
 
-    // Ensure proper line endings
-    const currentBlockWithEnding = currentBlock.endsWith('\n') ? currentBlock : currentBlock + '\n';
-    const targetBlockWithEnding = targetBlock.endsWith('\n') ? targetBlock : targetBlock + '\n';
+		// Ensure proper line endings
+		const currentBlockWithEnding = currentBlock.endsWith('\n') ? currentBlock : currentBlock + '\n';
+		const targetBlockWithEnding = targetBlock.endsWith('\n') ? targetBlock : targetBlock + '\n';
 
-    // Store the current block's line count
-    const currentBlockLines = currentBlockWithEnding.split('\n').length - 1;
+		// Store the current block's line count
+		const currentBlockLines = currentBlockWithEnding.split('\n').length - 1;
 
-    // Perform the swap
-    editor.replaceRange(
-        '',
-        { line: targetHeadingLine, ch: 0 },
-        { line: currentBlockEnd, ch: 0 }
-    );
+		// Perform the swap
+		editor.replaceRange(
+			'',
+			{ line: targetHeadingLine, ch: 0 },
+			{ line: currentBlockEnd, ch: 0 }
+		);
 
-    editor.replaceRange(
-        currentBlockWithEnding + targetBlockWithEnding,
-        { line: targetHeadingLine, ch: 0 }
-    );
+		editor.replaceRange(
+			currentBlockWithEnding + targetBlockWithEnding,
+			{ line: targetHeadingLine, ch: 0 }
+		);
 
-    // Calculate new cursor position
-    const newLine = targetHeadingLine + cursorOffset.lines;
-    const newPosition = {
-        line: Math.min(newLine, targetHeadingLine + currentBlockLines - 1),
-        ch: cursorOffset.ch
-    };
+		// Calculate new cursor position
+		const newLine = targetHeadingLine + cursorOffset.lines;
+		const newPosition = {
+			line: Math.min(newLine, targetHeadingLine + currentBlockLines - 1),
+			ch: cursorOffset.ch
+		};
 
-    // Restore cursor position
-    editor.setCursor(newPosition);
-    editor.scrollIntoView({ from: newPosition, to: newPosition }, true);
+		// Restore cursor position
+		editor.setCursor(newPosition);
+		editor.scrollIntoView({ from: newPosition, to: newPosition }, true);
 
-    // Show detailed notice
-    new Notice(`Heading "${currentHeadingText}" moved above. Now located below "${aboveHeadingText}" and above "${targetHeadingText}"`);
-}
+		// Show detailed notice
+		new Notice(`Heading "${currentHeadingText}" moved above. Now located below "${aboveHeadingText}" and above "${targetHeadingText}"`);
+	}
 
-//NOTE - Function of "Move Heading (with content) Down" command (Alt + PageDown)
-moveHeadingDown(editor: Editor) {
-    const cursor = editor.getCursor();
-    const lineCount = editor.lineCount();
+	/**
+	 * NOTE - Function of "Move Heading (with content) Down" command (Alt + PageDown).
+	 * @summary Moves entire heading section (including content) down, swapping with the heading below.
+	 * Uses the {@link findHeadingLine} function to find the current heading.
+	 * Uses the {@link getHeadingLevelAtLine} function to get the level of the current heading.
+	 * Uses the {@link scrollToPosition} function to scroll to the position of the heading.
+	 * @see {@link registerCommands} id: 'move-heading-down'
+	 * @param editor - The editor to make changes in.
+	 * @since 1.0.11
+	 */
+	moveHeadingDown(editor: Editor) {
+		const cursor = editor.getCursor();
+		const lineCount = editor.lineCount();
 
-    // Find current heading and its level
-    let currentHeadingLine = cursor.line;
-    let currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
-    const originalCursorLine = cursor.line;
+		// Find current heading and its level
+		let currentHeadingLine = cursor.line;
+		let currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+		const originalCursorLine = cursor.line;
 
-    // If cursor is not on a heading, find the previous heading
-    if (currentHeadingLevel === null) {
-        currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
-        if (currentHeadingLine === -1) {
-            new Notice('No heading found above cursor');
-            return;
-        }
-        currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
-    }
+		// If cursor is not on a heading, find the previous heading
+		if (currentHeadingLevel === null) {
+			currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+			if (currentHeadingLine === -1) {
+				new Notice('No heading found above cursor');
+				return;
+			}
+			currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+		}
 
-    // Find the end of current heading's content (including subheadings)
-    let currentBlockEnd = currentHeadingLine + 1;
-    if (currentHeadingLevel !== null) {
-        while (currentBlockEnd < lineCount) {
-            const level = this.getHeadingLevelAtLine(editor, currentBlockEnd);
-            if (level !== null && level <= currentHeadingLevel) {
-                break;
-            }
-            currentBlockEnd++;
-        }
-    }
+		// Find the end of current heading's content (including subheadings)
+		let currentBlockEnd = currentHeadingLine + 1;
+		if (currentHeadingLevel !== null) {
+			while (currentBlockEnd < lineCount) {
+				const level = this.getHeadingLevelAtLine(editor, currentBlockEnd);
+				if (level !== null && level <= currentHeadingLevel) {
+					break;
+				}
+				currentBlockEnd++;
+			}
+		}
 
-    // Find the target (next) heading to swap with
-    const targetHeadingLine = currentBlockEnd;
-    if (targetHeadingLine >= lineCount) {
-        new Notice('Already at the bottom');
-        return;
-    }
+		// Find the target (next) heading to swap with
+		const targetHeadingLine = currentBlockEnd;
+		if (targetHeadingLine >= lineCount) {
+			new Notice('Already at the bottom');
+			return;
+		}
 
-    // Find the end of target heading's content
-    const targetHeadingLevel = this.getHeadingLevelAtLine(editor, targetHeadingLine);
-    if (targetHeadingLevel === null) {
-        return;
-    }
-    let targetBlockEnd = targetHeadingLine + 1;
-    while (targetBlockEnd < lineCount) {
-        const level = this.getHeadingLevelAtLine(editor, targetBlockEnd);
-        if (level !== null && level <= targetHeadingLevel) {
-            break;
-        }
-        targetBlockEnd++;
-    }
+		// Find the end of target heading's content
+		const targetHeadingLevel = this.getHeadingLevelAtLine(editor, targetHeadingLine);
+		if (targetHeadingLevel === null) {
+			return;
+		}
+		let targetBlockEnd = targetHeadingLine + 1;
+		while (targetBlockEnd < lineCount) {
+			const level = this.getHeadingLevelAtLine(editor, targetBlockEnd);
+			if (level !== null && level <= targetHeadingLevel) {
+				break;
+			}
+			targetBlockEnd++;
+		}
 
-    // Find the heading below target for notice
-    let belowHeadingLine = targetBlockEnd;
-    while (belowHeadingLine < lineCount) {
-        const level = this.getHeadingLevelAtLine(editor, belowHeadingLine);
-        if (level !== null) {
-            break;
-        }
-        belowHeadingLine++;
-    }
+		// Find the heading below target for notice
+		let belowHeadingLine = targetBlockEnd;
+		while (belowHeadingLine < lineCount) {
+			const level = this.getHeadingLevelAtLine(editor, belowHeadingLine);
+			if (level !== null) {
+				break;
+			}
+			belowHeadingLine++;
+		}
 
-    // Prepare heading texts for notice
-    const currentHeadingText = editor.getLine(currentHeadingLine).replace(/^#+\s+/, '');
-    const targetHeadingText = editor.getLine(targetHeadingLine).replace(/^#+\s+/, '');
-    const belowHeadingText = belowHeadingLine < lineCount ?
-        editor.getLine(belowHeadingLine).replace(/^#+\s+/, '') : 'document end';
+		// Prepare heading texts for notice
+		const currentHeadingText = editor.getLine(currentHeadingLine).replace(/^#+\s+/, '');
+		const targetHeadingText = editor.getLine(targetHeadingLine).replace(/^#+\s+/, '');
+		const belowHeadingText = belowHeadingLine < lineCount ?
+			editor.getLine(belowHeadingLine).replace(/^#+\s+/, '') : 'document end';
 
-    // Calculate cursor offset from the start of the current block
-    const cursorOffset = {
-        lines: originalCursorLine - currentHeadingLine,
-        ch: cursor.ch
-    };
+		// Calculate cursor offset from the start of the current block
+		const cursorOffset = {
+			lines: originalCursorLine - currentHeadingLine,
+			ch: cursor.ch
+		};
 
-    // Get content blocks with proper line endings
-    const currentBlock = editor.getRange(
-        { line: currentHeadingLine, ch: 0 },
-        { line: currentBlockEnd - 1, ch: editor.getLine(currentBlockEnd - 1).length }
-    );
+		// Get content blocks with proper line endings
+		const currentBlock = editor.getRange(
+			{ line: currentHeadingLine, ch: 0 },
+			{ line: currentBlockEnd - 1, ch: editor.getLine(currentBlockEnd - 1).length }
+		);
 
-    const targetBlock = editor.getRange(
-        { line: targetHeadingLine, ch: 0 },
-        { line: targetBlockEnd - 1, ch: editor.getLine(targetBlockEnd - 1).length }
-    );
+		const targetBlock = editor.getRange(
+			{ line: targetHeadingLine, ch: 0 },
+			{ line: targetBlockEnd - 1, ch: editor.getLine(targetBlockEnd - 1).length }
+		);
 
-    // Ensure proper line endings
-    const currentBlockWithEnding = currentBlock.endsWith('\n') ? currentBlock : currentBlock + '\n';
-    const targetBlockWithEnding = targetBlock.endsWith('\n') ? targetBlock : targetBlock + '\n';
+		// Ensure proper line endings
+		const currentBlockWithEnding = currentBlock.endsWith('\n') ? currentBlock : currentBlock + '\n';
+		const targetBlockWithEnding = targetBlock.endsWith('\n') ? targetBlock : targetBlock + '\n';
 
-    // Store blocks' line counts
-    const targetBlockLines = targetBlockWithEnding.split('\n').length - 1;
-    const currentBlockLines = currentBlockWithEnding.split('\n').length - 1;
+		// Store blocks' line counts
+		const targetBlockLines = targetBlockWithEnding.split('\n').length - 1;
+		const currentBlockLines = currentBlockWithEnding.split('\n').length - 1;
 
-    // Perform the swap
-    editor.replaceRange(
-        '',
-        { line: currentHeadingLine, ch: 0 },
-        { line: targetBlockEnd, ch: 0 }
-    );
+		// Perform the swap
+		editor.replaceRange(
+			'',
+			{ line: currentHeadingLine, ch: 0 },
+			{ line: targetBlockEnd, ch: 0 }
+		);
 
-    editor.replaceRange(
-        targetBlockWithEnding + currentBlockWithEnding,
-        { line: currentHeadingLine, ch: 0 }
-    );
+		editor.replaceRange(
+			targetBlockWithEnding + currentBlockWithEnding,
+			{ line: currentHeadingLine, ch: 0 }
+		);
 
-    // Calculate new cursor position
-    const newLine = currentHeadingLine + targetBlockLines + cursorOffset.lines;
-    const newPosition = {
-        line: Math.min(newLine, currentHeadingLine + targetBlockLines + currentBlockLines - 1),
-        ch: cursorOffset.ch
-    };
+		// Calculate new cursor position
+		const newLine = currentHeadingLine + targetBlockLines + cursorOffset.lines;
+		const newPosition = {
+			line: Math.min(newLine, currentHeadingLine + targetBlockLines + currentBlockLines - 1),
+			ch: cursorOffset.ch
+		};
 
-    // Restore cursor position
-    editor.setCursor(newPosition);
-    editor.scrollIntoView({ from: newPosition, to: newPosition }, true);
+		// Restore cursor position
+		editor.setCursor(newPosition);
+		editor.scrollIntoView({ from: newPosition, to: newPosition }, true);
 
-    // Show detailed notice
-    new Notice(`Heading "${currentHeadingText}" moved below. Now located below "${targetHeadingText}" and above "${belowHeadingText}"`);
-}
+		// Show detailed notice
+		new Notice(`Heading "${currentHeadingText}" moved below. Now located below "${targetHeadingText}" and above "${belowHeadingText}"`);
+	}
 
 	//!SECTION - Heading commands
 
 	//SECTION - Link commands
-	//NOTE - Function of "Select Link Display Text" command (CTRL + ALT + L).
+	/**
+	 * NOTE - Function of "Select Link Display Text" command (Mod + \).
+	 * @summary Selects the display text of an internal link (the text after `|`), if present. If not present, adds `|` and places the cursor after it for typing
+	 * Uses the {@link findLinkUnderCursor} function to find the link under the cursor.
+	 * @see {@link registerCommands} id: 'select-link-display-text'
+	 * @param editor - The editor to make changes in.
+	 */
 	selectLinkDisplayText(editor: Editor) {
 		const result = this.findLinkUnderCursor(editor);
 		if (!result) {
@@ -768,7 +900,12 @@ moveHeadingDown(editor: Editor) {
 		}
 	}
 
-	//NOTE - Function of "Select Link Without Display Text" command (CTRL + \).
+	/**
+	 * NOTE - Function of "Select Link Without Display Text" command (CTRL + \).
+	 * @summary Selects the text before `|` in an internal link, or the entire internal link if `|` is absent.
+	 * @see {@link registerCommands} id: 'select-link-without-display-text'
+	 * @param editor - The editor to make changes in.
+	 */
 	selectLinkWithoutDisplayText(editor: Editor) {
 		const result = this.findLinkUnderCursor(editor);
 		if (!result) {
@@ -805,7 +942,12 @@ moveHeadingDown(editor: Editor) {
 		}
 	}
 
-	//NOTE - Function of "Select Link Content" command (CTRL + ALT + \).
+	/**
+	 * NOTE - Function of "Select Link Content" command (CTRL + ALT + \).
+	 * @summary Selects the content of the internal link, excluding the surrounding brackets.
+	 * @see {@link registerCommands} id: 'select-link-content'
+	 * @param editor - The editor to make changes in.
+	 */
 	selectLinkContent(editor: Editor) {
 		const result = this.findLinkUnderCursor(editor);
 		if (!result) {
@@ -827,7 +969,12 @@ moveHeadingDown(editor: Editor) {
 		editor.setSelection(fromPos, toPos);
 	}
 
-	//NOTE - Function of "Select Full Link" command (CTRL + SHIFT + ALT + \).
+	/**
+	 * NOTE - Function of "Select Full Link" command (CTRL + SHIFT + ALT + \).
+	 * @summary Selects the entire internal link, including the surrounding brackets.
+	 * @see {@link registerCommands} id: 'select-full-link'
+	 * @param editor - The editor to make changes in.
+	 */
 	selectFullLink(editor: Editor) {
 		const result = this.findLinkUnderCursor(editor);
 		if (!result) {
@@ -851,7 +998,13 @@ moveHeadingDown(editor: Editor) {
 
 	//!SECTION - Link commands
 
-	//NOTE - Function of "Paste as Code Block" command (CTRL + SHIFT + V).
+	/**
+	 * NOTE - Function of "Paste as Code Block" command (CTRL + ALT + V).
+	 * @summary Pastes clipboard content as a code block, automatically determining the language based on settings.
+	 * @see {@link registerCommands} id: 'paste-as-code-block'
+	 * @param editor - The editor to make changes in.
+	 * @since 1.0.9
+	 */
 	async pasteAsCodeBlock(editor: Editor) {
 		try {
 			const clipboardText = await navigator.clipboard.readText();
@@ -874,7 +1027,13 @@ moveHeadingDown(editor: Editor) {
 		}
 	}
 
-	//NOTE - Function of "Select current line" command (CTRL + L).
+	/**
+	 * NOTE - Function of "Select Current Line" command (CTRL + L).
+	 * @summary Selects the entire logical line of text. Can be repeated for selecting next lines.
+	 * @see {@link registerCommands} id: 'select-current-line'
+	 * @param editor - The editor to make changes in.
+	 * @since 1.0.10
+	 */
 	selectCurrentLine(editor: Editor) {
 		const selection = editor.getSelection();
 		const cursor = editor.getCursor();
@@ -904,7 +1063,13 @@ moveHeadingDown(editor: Editor) {
 		}
 	}
 
-	//NOTE - Function of "Select previous line" command (CTRL + Shift + L).
+	/**
+	 * NOTE - Function of "Select Previous Line" command (CTRL + SHIFT + L).
+	 * @summary Selects previous line of text. Can be repeated for previous lines.
+	 * @see {@link registerCommands} id: 'select-previous-line'
+	 * @param editor - The editor to make changes in.
+	 * @since 1.0.11
+	 */
 	selectPreviousLine(editor: Editor) {
 		const selection = editor.getSelection();
 		const cursor = editor.getCursor();
@@ -934,7 +1099,14 @@ moveHeadingDown(editor: Editor) {
 			}
 		}
 	}
-	//NOTE - Function of "Clear selection from current line" command (CTRL + Alt + L).
+
+	/**
+	 * NOTE - Function of "Clear Selection from Current Line" command (CTRL + ALT + L).
+	 * @summary Clears selection from the current logical line of text.
+	 * @see {@link registerCommands} id: 'clear-selection-from-current-line'
+	 * @param editor - The editor to make changes in.
+	 * @since 1.0.10
+	 */
 	clearSelectionFromCurrentLine(editor: Editor) {
 		const selection = editor.getSelection();
 
@@ -966,7 +1138,13 @@ moveHeadingDown(editor: Editor) {
 		}
 	}
 
-	//NOTE - Function of "Select to line start" command (CTRL + SHIFT + <).
+	/**
+	 * NOTE - Function of "Select to Line Start" command (CTRL + SHIFT + <).
+	 * @summary Selects text from cursor position to the start of line. Ignores list markers.
+	 * @see {@link registerCommands} id: 'select-to-line-start'
+	 * @param editor - The editor to make changes in.
+	 * @since 1.0.10
+	 */
 	selectToLineStart(editor: Editor) {
 		const cursor = editor.getCursor();
 		const lineText = editor.getLine(cursor.line);
@@ -983,7 +1161,13 @@ moveHeadingDown(editor: Editor) {
 		editor.setSelection(fromPos, cursor);
 	}
 
-	//NOTE - Function of "Select to line end" command (CTRL + SHIFT + >).
+	/**
+	 * NOTE - Function of "Select to Line End" command (CTRL + SHIFT + >).
+	 * @summary Selects text from cursor position to the end of line.
+	 * @see {@link registerCommands} id: 'select-to-line-end'
+	 * @param editor - The editor to make changes in.
+	 * @since 1.0.10
+	 */
 	selectToLineEnd(editor: Editor) {
 		const cursor = editor.getCursor();
 		const lineLength = editor.getLine(cursor.line).length;

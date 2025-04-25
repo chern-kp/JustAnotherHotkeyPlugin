@@ -63,7 +63,7 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
-                new Setting(containerEl)
+        new Setting(containerEl)
             .setName('Custom language list')
             .setDesc('Enter programming languages (one per line). Languages higher in the list have higher priority.')
             .addTextArea(text => text
@@ -77,7 +77,7 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
-                new Setting(containerEl)
+        new Setting(containerEl)
             .setName('Turn on "Copy content of files in folder/tag" feature')
             .setDesc('Turns on new buttons in file explorer and tag pane.')
             .addToggle(toggle => toggle
@@ -99,8 +99,5 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                         }
                     }
                 }));
-
-
-
     }
 }

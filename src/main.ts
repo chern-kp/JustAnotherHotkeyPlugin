@@ -9,11 +9,17 @@ import { CopyContentFeature } from './features/copyContentFeature';
 
 //ANCHOR - Settings Interface - We use it to use values from the settings tab in code.
 interface JustAnotherHotkeyPluginSettings {
+	/** When enabled, pressing TAB key will not indent the current line */
 	disableTabIndentation: boolean;
+	/** When enabled, double-clicking on inline code blocks will copy their content */
 	copyInlineCodeOnDoubleClick: boolean;
+	/** Automatically determine code block language based on context */
 	useContextualCodeBlockLanguage: boolean;
+	/** Determines where to search for language code: note name, parent folder, nearest ancestor folder, or tags */
 	languageSearchLocation: 'noteName' | 'parentFolder' | 'nearestToRootAncestorFolder' | 'tags';
+	/** Custom list of programming languages with priority order */
 	codeBoxLanguages: string[];
+	/** When enabled, adds a button to copy content from the editor */
 	copyContentFeature: boolean;
 }
 
@@ -44,47 +50,18 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 		/**
 		 * Registers a double-click event handler to copy inline code content.
-		 * When a user double-clicks on an element with inline code (having the 'cm-inline-code' class),
-		 * the content of this element is copied to the clipboard and a notification is displayed.
-		 * This function is only active if the copyInlineCodeOnDoubleClick option is enabled in settings.
+		 * Uses the {@link handleInlineCodeDoubleClick} function.
 		 */
-		this.registerDomEvent(document, 'dblclick', (evt: MouseEvent) => {
-			if (!this.settings.copyInlineCodeOnDoubleClick) {
-				return;
-			}
-			const target = evt.target as HTMLElement;
-			const isInlineCode = target.classList.contains('cm-inline-code');
-			if (isInlineCode) {
-				const text = target.textContent;
-				if (text) {
-					navigator.clipboard.writeText(text).then(() => {
-						new Notice('Code copied to clipboard');
-					}).catch(err => {
-						console.error('Failed to copy text: ', err);
-						new Notice('Failed to copy code');
-					});
-				}
-			}
-		});
+		this.registerDomEvent(document, 'dblclick', this.handleInlineCodeDoubleClick.bind(this));
 
 		/**
-		 * Disables the Tab key indentation in the editor, when the disableTabIndentation setting is enabled.
-		 * @returns true (stops further processing) if disableTabIndentation is enabled
-		 * @returns false (allows normal Tab behavior) if disableTabIndentation is disabled
+		 * Registers an editor extension to handle the Tab key if setting is enabled.
+		 * Uses the {@link handleTabKey} function.
 		 */
 		const tabKeymap = Prec.highest(keymap.of([{
 			key: 'Tab',
-			run: (): boolean => {
-				if (this.settings?.disableTabIndentation) {
-					return true;
-				}
-				return false;
-			}
+			run: this.handleTabKey.bind(this)
 		}]));
-		/**
-		 * Registers the tabKeymap as an editor extension.
-		 * This allows the Tab key to be intercepted and handled by the plugin.
-		 */
 		this.registerEditorExtension([tabKeymap]);
 
 		/**
@@ -107,7 +84,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 					}
 					this.copyContentFeature.initialize();
 				} else {
-					this.copyContentFeature = null;
+					this.copyContentFeature = null; // Cleanup if feature is disabled
 				}
 			})
 		);
@@ -137,6 +114,46 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
+
+	//SECTION - Event Handlers
+	/**
+	 * NOTE - Handler for double-click event.
+	 * Handles the double-click event on the document.
+	 * If the target is inline code and the setting is enabled, copies the content.
+	 */
+	private handleInlineCodeDoubleClick(evt: MouseEvent): void {
+		if (!this.settings.copyInlineCodeOnDoubleClick) {
+			return;
+		}
+		const target = evt.target as HTMLElement;
+		const isInlineCode = target.classList.contains('cm-inline-code');
+		if (isInlineCode) {
+			const text = target.textContent;
+			if (text) {
+				navigator.clipboard.writeText(text).then(() => {
+					new Notice('Code copied to clipboard');
+				}).catch(err => {
+					console.error('Failed to copy text: ', err);
+					new Notice('Failed to copy code');
+				});
+			}
+		}
+	}
+
+	/**
+	 * NOTE - Handler for Tab key.
+	 * Handles the Tab key press event.
+	 * Disables default Tab indentation if the setting is enabled.
+	 * @returns true (stops further processing) if disableTabIndentation is enabled
+	 * @returns false (allows normal Tab behavior) if disableTabIndentation is disabled
+	 */
+	private handleTabKey(): boolean {
+		if (this.settings?.disableTabIndentation) {
+			return true; // Prevent default Tab behavior
+		}
+		return false; // Allow default Tab behavior
+	}
+	//!SECTION - Event Handlers
 
 	//SECTION - Additional functions
 	/**
@@ -284,6 +301,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	/**
 	 * NOTE - Function of "Select to the End of Current Heading" command (CTRL + S).
 	 * @summary Selects text from the current position to the end of the current heading (to the next heading).
+	 * Uses the {@link findHeadingLine} function to find the next heading.
 	 * @see {@link registerCommands} id: 'select-to-end-of-heading'
 	 * @param editor - The editor to make changes in.
 	 */
@@ -314,6 +332,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	/**
 	 * NOTE - Function of "Select to the Beginning of Current Heading" command (CTRL + SHIFT + S).
 	 * @summary Selects text from the current position to the beginning of the current heading (to the previous heading).
+	 * Uses the {@link findHeadingLine} function to find the previous heading.
 	 * @see {@link registerCommands} id: 'select-to-beginning-of-heading'
 	 * @param editor - The editor to make changes in.
 	 */
@@ -351,6 +370,8 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	/**
 	 * NOTE - Function of "Select Current Heading" command (CTRL + ALT + S).
 	 * @summary Selects the entire current heading section.
+	 * Uses the {@link findHeadingLine} function to find the current heading.
+	 * Uses the {@link getHeadingLevelAtLine} function to get the heading level.
 	 * @see {@link registerCommands} id: 'select-current-heading'
 	 * @param editor - The editor to make changes in.
 	 */
@@ -384,6 +405,8 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	/**
 	 * NOTE - Function of "Select Current and Child Headings" command (CTRL + ALT + SHIFT + S).
 	 * @summary Selects the current heading and all its child headings.
+	 * Uses the {@link findHeadingLine} function to find the current heading.
+	 * Uses the {@link getHeadingLevelAtLine} function to get the heading level.
 	 * @see {@link registerCommands} id: 'select-current-and-child-headings'
 	 * @param editor - The editor to make changes in.
 	 */
@@ -445,6 +468,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	/**
 	 * NOTE - Function of "Select All Current Level Headings" command (CTRL + ALT + PAGE DOWN).
 	 * @summary Selects all headings of the current level.
+	 * Uses the {@link getHeadingLevelAtLine} function to get the heading level.
 	 * @see {@link registerCommands} id: 'select-all-current-level-headings'
 	 * @param editor - The editor to make changes in.
 	 */
@@ -903,6 +927,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	/**
 	 * NOTE - Function of "Select Link Without Display Text" command (CTRL + \).
 	 * @summary Selects the text before `|` in an internal link, or the entire internal link if `|` is absent.
+	 * Uses the {@link findLinkUnderCursor} function to find the link under the cursor.
 	 * @see {@link registerCommands} id: 'select-link-without-display-text'
 	 * @param editor - The editor to make changes in.
 	 */
@@ -945,6 +970,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	/**
 	 * NOTE - Function of "Select Link Content" command (CTRL + ALT + \).
 	 * @summary Selects the content of the internal link, excluding the surrounding brackets.
+	 * Uses the {@link findLinkUnderCursor} function to find the link under the cursor.
 	 * @see {@link registerCommands} id: 'select-link-content'
 	 * @param editor - The editor to make changes in.
 	 */
@@ -1001,6 +1027,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	/**
 	 * NOTE - Function of "Paste as Code Block" command (CTRL + ALT + V).
 	 * @summary Pastes clipboard content as a code block, automatically determining the language based on settings.
+	 * Uses the {@link determineCodeLanguage} function to determine the language.
 	 * @see {@link registerCommands} id: 'paste-as-code-block'
 	 * @param editor - The editor to make changes in.
 	 * @since 1.0.9

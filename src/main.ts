@@ -6,6 +6,7 @@ import { Prec } from '@codemirror/state';
 //Imports of other files of the plugin
 import { JustAnotherHotkeyPluginSettingTab } from './settings';
 import { CopyContentFeature } from './features/copyContentFeature';
+import { TagSuggestModal } from './ui/modals/tagSuggestModal';
 
 //ANCHOR - Settings Interface - We use it to use values from the settings tab in code.
 interface JustAnotherHotkeyPluginSettings {
@@ -88,6 +89,9 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 				}
 			})
 		);
+
+		// Register command for copying notes by tag
+		this.registerCopyNotesByTagCommand();
 	}
 
 	/**
@@ -154,6 +158,74 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		return false; // Allow default Tab behavior
 	}
 	//!SECTION - Event Handlers
+
+	//SECTION - Register commands
+	/**
+ * NOTE - Registers command for copying notes by tag
+ * Creates a command that allows users to select a tag and copy content from all notes with that tag
+ * @private
+ */
+	private registerCopyNotesByTagCommand(): void {
+		this.addCommand({
+			id: 'copy-notes-by-tag',
+			name: '[Copy all notes with tag…]',
+			checkCallback: (checking: boolean) => {
+				// Command only available if feature is enabled
+				if (!this.settings.copyContentFeature) return false;
+				if (!checking) {
+					// Collect all tags from all markdown files
+					const files = this.app.vault.getMarkdownFiles();
+					const tagSet = new Set<string>();
+					for (const file of files) {
+						const cache = this.app.metadataCache.getFileCache(file);
+						if (cache && cache.tags) {
+							for (const tagObj of cache.tags) {
+								tagSet.add(tagObj.tag);
+							}
+						}
+					}
+					const tags = Array.from(tagSet).sort();
+					console.log('Available tags:', tags);
+
+					// Show tag selection modal
+					if (tags.length > 0) {
+						new TagSuggestModal(this.app, tags, async (selectedTag) => {
+							// Get all files with selected tag
+							const filesWithTag = files.filter(file => {
+								const cache = this.app.metadataCache.getFileCache(file);
+								return cache?.tags?.some(tagObj => tagObj.tag === selectedTag);
+							});
+
+							if (filesWithTag.length > 0) {
+								// Use CopyContentFeature to copy content
+								if (this.copyContentFeature) {
+									try {
+										const content = await this.copyContentFeature.copyFiles(filesWithTag);
+										if (content) {
+											await navigator.clipboard.writeText(content);
+											new Notice(`Content from ${filesWithTag.length} files with tag ${selectedTag} copied to clipboard!`);
+										} else {
+											new Notice('No content to copy');
+										}
+									} catch (error) {
+										console.error('Error copying content:', error);
+										new Notice('Error copying content');
+									}
+								}
+							} else {
+								new Notice(`No files found with tag ${selectedTag}`);
+							}
+						}).open();
+					} else {
+						new Notice('No tags found in any files');
+					}
+				}
+				return true;
+			}
+		});
+	}
+
+	//!SECTION - Register commands
 
 	//SECTION - Additional functions
 	/**

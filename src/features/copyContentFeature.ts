@@ -57,38 +57,23 @@ export class CopyContentFeature {
     private async copyMultipleItems(items: (TFile | TFolder)[]): Promise<string> {
         let result = '';
 
-        // Get all files in the vault once
-        const allFiles = this.app.vault.getFiles();
+        // Get all files from selection using helper method
+        const files = this.getAllFilesFromSelection(items);
 
-        // First process all files that are not inside selected folders
-        const selectedFolders = items.filter(item => item instanceof TFolder) as TFolder[];
-        for (const item of items) {
-            if (item instanceof TFile) {
-                // Check if this file is inside any selected folder
-                const isInsideSelectedFolder = selectedFolders.some(folder =>
-                    item.path.startsWith(folder.path + '/')
-                );
+        // Sort files by path for consistent order
+        files.sort((a, b) => a.path.localeCompare(b.path));
 
-                if (!isInsideSelectedFolder) {
-                    result += await this.copyFileContent(item);
-                }
-            }
-        }
-
-        // Then process all folders
-        for (const folder of selectedFolders) {
-            // Get all files in the folder
-            const files = allFiles
-                .filter(file => file.path.startsWith(folder.path))
-                .sort((a, b) => a.path.localeCompare(b.path));
-
-            // Process all files in the folder
-            for (const file of files) {
-                result += await this.copyFileContent(file);
-            }
+        // Process all files
+        for (const file of files) {
+            result += await this.copyFileContent(file);
         }
 
         return result;
+    }
+
+    //Public method to copy content from multiple files
+    public async copyFiles(files: TFile[]): Promise<string> {
+        return this.copyMultipleItems(files);
     }
 
     //Registers context menu item in file explorer when current file is selected
@@ -103,8 +88,11 @@ export class CopyContentFeature {
                             // Use the clicked file/folder
                             const selectedItems = [file];
 
-                            // Get combined content of all selected items by calling copyMultipleItems()
-                            const content = await this.copyMultipleItems(selectedItems);
+                            // Get all files from selection (including files in folders)
+                            const allFiles = this.getAllFilesFromSelection(selectedItems);
+
+                            // Get combined content of all files
+                            const content = await this.copyFiles(allFiles);
 
                             if (content) {
                                 // Copy to clipboard using browser API
@@ -133,7 +121,9 @@ export class CopyContentFeature {
                     .onClick(async () => {
                         try {
                             // Use all selected files/folders
-                            const content = await this.copyMultipleItems(files);
+                            const allFiles = this.getAllFilesFromSelection(files);
+
+                            const content = await this.copyFiles(allFiles);
 
                             if (content) {
                                 // Copy to clipboard using browser API
@@ -150,5 +140,30 @@ export class CopyContentFeature {
             });
         };
         this.app.workspace.on('files-menu', this.filesMenuHandler);
+    }
+
+    //Helper method to get all files from selection (including files in folders)
+    private getAllFilesFromSelection(items: (TFile | TFolder)[]): TFile[] {
+        const result: TFile[] = [];
+
+        // Get all files in the vault once for efficiency
+        const allFiles = this.app.vault.getFiles();
+
+        // First add all directly selected files
+        for (const item of items) {
+            if (item instanceof TFile) {
+                result.push(item);
+            }
+        }
+
+        // Then add all files from selected folders
+        const selectedFolders = items.filter(item => item instanceof TFolder) as TFolder[];
+        for (const folder of selectedFolders) {
+            const filesInFolder = allFiles
+                .filter(file => file.path.startsWith(folder.path + '/'));
+            result.push(...filesInFolder);
+        }
+
+        return result;
     }
 }

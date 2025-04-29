@@ -1,9 +1,9 @@
 {
 	"id": "just-another-hotkey-plugin",
 	"name": "Just Another Hotkey Plugin",
-	"version": "1.0.11",
+	"version": "1.0.12",
 	"minAppVersion": "0.15.0",
-	"description": "New Hotkeys",
+	"description": "New useful hotkeys for text editing and several additional features",
 	"author": "Obsidian",
 	"authorUrl": "https://github.com/chern-kp",
 	"fundingUrl": "https://github.com/chern-kp",

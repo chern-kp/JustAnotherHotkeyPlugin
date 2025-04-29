@@ -1,9 +1,16 @@
+# 1.0.12
+## Added
+- Added new feature for copying content from multiple files at the same time. Depends on new `Turn on "Copy content of files in folder/tag" feature` setting.
+	- Added new button to context menu of file manager "Copy content". Allows user to copy content from one or several files or folders.
+	- Added new `[Copy all notes with tag…]` command for copying content of all notes with specific tag parameter.
 # 1.0.11
 ## Added
 - Added new commands to move headings and their content up and down:
   - `Move Heading Up` (ALT + PageUp): Moves the current heading and all its content (including subheadings) up, swapping positions with the heading above
   - `Move Heading Down` (ALT + PageDown): Moves the current heading and all its content (including subheadings) down, swapping positions with the heading below
 - New command `Select Previous Line` (CTRL + SHIFT + L): Selects the previous logical line in the editor
+- Added a new command `Paste as code block` with the default hotkey `CTRL + ALT + V`.
+	- Added the `Contextual code block language` setting. When enabled, the language for code blocks inserted via `Paste as code block` is automatically detected based on the note title, parent folder name, or the nearest ancestor folder name (closest to the vault root).
 ## Changed
 - Default hotkey for `Clear selection from current line` command changed from `CTRL + SHIFT + L` to `CTRL + ALT + L`
 # 1.0.10

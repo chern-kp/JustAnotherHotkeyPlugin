@@ -7,7 +7,6 @@ This plugin also adds features such as ability to copy inline code content on do
 In development
 
 ## Features
-
 ### New hotkeys and commands
 
 | Feature                                      | Default Hotkey               | Description                                                                                                                                         |
@@ -25,7 +24,7 @@ In development
 | Select Link Without Display Text             | `Ctrl/Cmd + Shift + \`       | Selects the text before `\|` in an internal link, or the entire internal link if `\|` is absent.                                                    |
 | Select Link Content                          | `Ctrl/Cmd + Alt + \`         | Selects the content of the internal link, excluding the surrounding brackets.                                                                       |
 | Select Full Link                             | `Ctrl/Cmd + Shift + Alt + \` | Selects the entire internal link, including the surrounding brackets.                                                                               |
-| Paste As Code Block                          | `Ctrl/Cmd + Alt + V`         | Selects the entire internal link, including the surrounding brackets.                                                                               |
+| Paste As Code Block                          | `Ctrl/Cmd + Alt + V`         | Pastes clipboard content as a code block with automatic language detection (if enabled in settings).                                                |
 | Select Current Line                          | `Ctrl/Cmd + L`               | Selects the entire logical line of text (until next line break). **Repeatable** for next lines.                                                     |
 | Select Previous Line                         | `Ctrl/Cmd + Shift + L`       | Selects previous line of text (until previous line break). **Repeatable** for previous lines.                                                       |
 | Clear Selection of Current Line              | `Ctrl/Cmd + Alt + L`         | Clears selection of current logical line of text (until previous line break). **Repeatable** for previous lines.                                    |
@@ -34,6 +33,13 @@ In development
 | Move Heading Up                              | `Alt + PageUp`               | Moves entire heading section (including content) up, swapping with the heading above.                                                               |
 | Move Heading Down                            | `Alt + PageDown`             | Moves entire heading section (including content) down, swapping with the heading below.                                                             |
 
+
+### Additional Features
+
+- **Smart Code Block Language Detection**: When using `Paste As Code Block` command, the plugin can automatically detect appropriate language based on note's name, parent folder, or nearest root folder
+- **Bulk Content Copy**: Copy content from multiple files at once using context menu or tag-based selection
+- **Double-Click Code Copy**: Quick copy of inline code content with double-click (when enabled)
+
 ### New options in settings
 
 - Turn off TAB key indentation (`True` or `False`)
@@ -41,6 +47,9 @@ In development
 - Use contextual code block language (`True` or `False`)
     - Search language code in... (`Note name`, `Parent folder name`, `Nearest to root folder`)
     - Custom language list
+- Turn on "Copy content of files in folder/tag" feature (`True` or `False`)
+    - Adds "Copy content" button to file context menu for copying content from multiple files/folders
+    - Adds `[Copy all notes with tag…]` command for copying content from all notes with specific tag
 
 # Installation
 Install the BRAT Plugin from Obsidian Community Plugins or from the [GitHub repository](https://github.com/TfTHacker/obsidian42-brat).

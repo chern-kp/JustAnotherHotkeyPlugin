@@ -37,7 +37,6 @@ const DEFAULT_SETTINGS: JustAnotherHotkeyPluginSettings = {
 
 export default class JustAnotherHotkeyPlugin extends Plugin {
 
-
 	settings: JustAnotherHotkeyPluginSettings;
 	copyContentFeature: CopyContentFeature | null = null;
 
@@ -161,10 +160,10 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 	//SECTION - Register commands
 	/**
- * NOTE - Registers command for copying notes by tag
- * Creates a command that allows users to select a tag and copy content from all notes with that tag
- * @private
- */
+	 * NOTE - Registers command for copying notes by tag
+	 * Creates a command that allows users to select a tag and copy content from all notes with that tag
+	 * @private
+	 */
 	private registerCopyNotesByTagCommand(): void {
 		this.addCommand({
 			id: 'copy-notes-by-tag',
@@ -176,24 +175,97 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 					// Collect all tags from all markdown files
 					const files = this.app.vault.getMarkdownFiles();
 					const tagSet = new Set<string>();
+
 					for (const file of files) {
 						const cache = this.app.metadataCache.getFileCache(file);
-						if (cache && cache.tags) {
+						if (!cache) continue;
+
+						// Collect tags from note body (tags in metadataCache)
+						if (cache.tags) {
 							for (const tagObj of cache.tags) {
 								tagSet.add(tagObj.tag);
 							}
 						}
+
+						// Collect tags from frontmatter (properties)
+						if (cache.frontmatter) {
+							// Tags in frontmatter can be in 'tags' field (array) or 'tag' field (string)
+							const frontmatterTags = cache.frontmatter.tags || cache.frontmatter.tag;
+
+							if (frontmatterTags) {
+								// Process array of tags
+								if (Array.isArray(frontmatterTags)) {
+									for (const tag of frontmatterTags) {
+										// Add # if missing
+										const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
+										tagSet.add(formattedTag);
+									}
+								}
+								// Process single tag (string)
+								else if (typeof frontmatterTags === 'string') {
+									const formattedTag = frontmatterTags.startsWith('#')
+										? frontmatterTags
+										: `#${frontmatterTags}`;
+									tagSet.add(formattedTag);
+								}
+							}
+						}
 					}
+
 					const tags = Array.from(tagSet).sort();
 					console.log('Available tags:', tags);
 
 					// Show tag selection modal
 					if (tags.length > 0) {
 						new TagSuggestModal(this.app, tags, async (selectedTag) => {
-							// Get all files with selected tag
+							// Find all related tags (parent tag and its subtags)
+							const relatedTags = this.findRelatedTags(selectedTag, tags);
+							console.log('Selected tag and related subtags:', relatedTags);
+
+							// Get all files with the selected tag or any of its subtags
 							const filesWithTag = files.filter(file => {
 								const cache = this.app.metadataCache.getFileCache(file);
-								return cache?.tags?.some(tagObj => tagObj.tag === selectedTag);
+								if (!cache) return false;
+
+								// Check if file has any of the related tags (selected tag or its subtags)
+								for (const tagToFind of relatedTags) {
+									// Check tags in note body
+									if (cache.tags && cache.tags.some(tagObj => tagObj.tag === tagToFind)) {
+										return true;
+									}
+
+									// Check tags in frontmatter (properties)
+									if (cache.frontmatter) {
+										const frontmatterTags = cache.frontmatter.tags || cache.frontmatter.tag;
+
+										if (frontmatterTags) {
+											// For array of tags
+											if (Array.isArray(frontmatterTags)) {
+												// Remove # from tag for comparison
+												const plainTag = tagToFind.startsWith('#')
+													? tagToFind.substring(1)
+													: tagToFind;
+
+												if (frontmatterTags.some(tag =>
+													tag === plainTag || tag === tagToFind)) {
+													return true;
+												}
+											}
+											// For single tag (string)
+											else if (typeof frontmatterTags === 'string') {
+												const plainTag = tagToFind.startsWith('#')
+													? tagToFind.substring(1)
+													: tagToFind;
+
+												if (frontmatterTags === plainTag || frontmatterTags === tagToFind) {
+													return true;
+												}
+											}
+										}
+									}
+								}
+
+								return false;
 							});
 
 							if (filesWithTag.length > 0) {
@@ -203,7 +275,11 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 										const content = await this.copyContentFeature.copyFiles(filesWithTag);
 										if (content) {
 											await navigator.clipboard.writeText(content);
-											new Notice(`Content from ${filesWithTag.length} files with tag ${selectedTag} copied to clipboard!`);
+											if (relatedTags.length > 1) {
+												new Notice(`Content from ${filesWithTag.length} files with tag ${selectedTag} and its subtags copied to clipboard!`);
+											} else {
+												new Notice(`Content from ${filesWithTag.length} files with tag ${selectedTag} copied to clipboard!`);
+											}
 										} else {
 											new Notice('No content to copy');
 										}
@@ -213,7 +289,11 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 									}
 								}
 							} else {
-								new Notice(`No files found with tag ${selectedTag}`);
+								if (relatedTags.length > 1) {
+									new Notice(`No files found with tag ${selectedTag} or its subtags`);
+								} else {
+									new Notice(`No files found with tag ${selectedTag}`);
+								}
 							}
 						}).open();
 					} else {
@@ -224,6 +304,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			}
 		});
 	}
+
 
 	//!SECTION - Register commands
 
@@ -365,6 +446,36 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 				break;
 		}
 		return foundLanguage;
+	}
+
+	/**
+		 * NOTE - Additional function for "Copy all notes with tag..." command.
+		 * Finds all related tags (the parent tag and all its subtags)
+		 * @param parentTag - The selected parent tag
+		 * @param allTags - All available tags in the vault
+		 * @returns Array containing the parent tag and all its subtags
+		 */
+	private findRelatedTags(parentTag: string, allTags: string[]): string[] {
+		// The base tag without the # symbol
+		const cleanParentTag = parentTag.startsWith('#') ? parentTag.substring(1) : parentTag;
+
+		// Always include the selected tag itself
+		const result = [parentTag];
+
+		// Find all subtags (tags that start with parent tag followed by /)
+		for (const tag of allTags) {
+			// Skip if it's the parent tag itself
+			if (tag === parentTag) continue;
+
+			const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+
+			// Check if this is a subtag of the parent tag
+			if (cleanTag.startsWith(cleanParentTag + '/')) {
+				result.push(tag);
+			}
+		}
+
+		return result;
 	}
 
 	//!SECTION - Additional functions

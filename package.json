@@ -1,6 +1,6 @@
 {
 	"name": "just-another-hotkey-plugin",
-	"version": "1.0.12",
+	"version": "1.0.12.1",
 	"description": "New useful hotkeys for text editing and several additional features",
 	"main": "src/main.js",
 	"scripts": {

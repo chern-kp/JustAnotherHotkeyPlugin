@@ -1,3 +1,8 @@
+# 1.0.12.1
+## Changed
+- `[Copy all notes with tag…]` command now works with nested tags (`#tag1/tag2`)
+- `[Copy all notes with tag…]` command now ignores YAML information in the copied content
+
 # 1.0.12
 ## Added
 - Added new feature for copying content from multiple files at the same time. Depends on new `Turn on "Copy content of files in folder/tag" feature` setting.

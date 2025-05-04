@@ -44,13 +44,37 @@ export class CopyContentFeature {
     private async copyFileContent(file: TFile): Promise<string> {
         try {
             // Read file content using Obsidian vault API
-            const content = await this.app.vault.read(file);
+            let content = await this.app.vault.read(file);
+
+            // Remove YAML frontmatter if present
+            // YAML frontmatter is delimited by triple dashes at the start and end
+            content = this.removeYamlFrontmatter(content);
+
             // Add file path as header and separate content with newlines
             return `=== ${file.path} ===\n${content}\n\n`;
         } catch (error) {
             console.error(`Error reading file ${file.path}:`, error);
             return `Error reading file ${file.path}\n`;
         }
+    }
+
+    // Remove YAML from note content
+    private removeYamlFrontmatter(content: string): string {
+        // Check if content starts with "---" which indicates YAML frontmatter
+        if (content.trimStart().startsWith('---')) {
+            // Find the closing "---" after the opening one
+            const firstDashes = content.indexOf('---');
+            const secondDashes = content.indexOf('---', firstDashes + 3);
+
+            // If we found both opening and closing dashes
+            if (secondDashes !== -1) {
+                // Return content after the closing "---" (plus the newline)
+                return content.substring(secondDashes + 3).trimStart();
+            }
+        }
+
+        // If no proper YAML frontmatter was found, return original content
+        return content;
     }
 
     //Processes multiple selected items (files and/or folders)

@@ -9,8 +9,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -22,13 +27,34 @@ jobs:
           npm install
           npm run build
 
-      - name: Create release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get version from tag
+        id: get_version
         run: |
-          tag="${GITHUB_REF#refs/tags/}"
+          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
-          gh release create "$tag" \
-            --title="$tag" \
-            --draft \
-            main.js manifest.json src/hotkeys.ts src/settings.ts
+      - name: Extract changelog
+        id: changelog
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/}"
+
+          sed -n "/^## \[$VERSION\]/,/^## \[/p" CHANGELOG.md | sed '$d' | tail -n +2 > changelog_body.txt
+
+          if [ ! -s changelog_body.txt ]; then
+            echo "Release $VERSION" > changelog_body.txt
+          fi
+
+          echo "Extracted changelog:"
+          cat changelog_body.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref }}
+          name: ${{ env.VERSION }}
+          body_path: changelog_body.txt
+          files: |
+            main.js
+            manifest.json
+          draft: false
+          prerelease: false
+          generate_release_notes: false

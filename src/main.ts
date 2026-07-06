@@ -552,14 +552,72 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	/**
-	 * NOTE - Function of "Select Current Heading" command (CTRL + ALT + S).
-	 * @summary Selects the entire current heading section.
-	 * Uses the {@link findHeadingLine} function to find the current heading.
-	 * Uses the {@link getHeadingLevelAtLine} function to get the heading level.
-	 * @see {@link registerCommands} id: 'select-current-heading'
+	 * NOTE - Progressive heading selection on Alt + H.
+	 * First press selects the current heading. Second press expands to include child headings.
+	 * Uses the internal helper to compute heading bounds,
+	 * then compares the current selection.
+	 */
+	selectHeadingProgressive(editor: Editor) {
+		const cursor = editor.getCursor();
+		const lineCount = editor.lineCount();
+
+		// Determine which heading the cursor belongs to
+		let currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+		if (currentHeadingLine === -1 || currentHeadingLine < cursor.line) {
+			currentHeadingLine = cursor.line;
+		}
+
+		let currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+		if (currentHeadingLevel === null) {
+			currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+			if (currentHeadingLine !== -1) {
+				currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+			}
+		}
+
+		// Compute the heading‑only bounds (same logic as the old selectCurrentHeading)
+		let headingOnlyFromPos: EditorPosition;
+		let headingOnlyToPos: EditorPosition;
+		if (currentHeadingLine !== -1 && currentHeadingLevel !== null) {
+			let nextHeadingLine = this.findHeadingLine(editor, currentHeadingLine, 'next');
+			if (nextHeadingLine === -1) nextHeadingLine = lineCount;
+
+			headingOnlyFromPos = { line: currentHeadingLine, ch: 0 };
+			headingOnlyToPos = {
+				line: nextHeadingLine - 1,
+				ch: editor.getLine(nextHeadingLine - 1).length,
+			};
+		} else {
+			// No heading found - select from start of file to cursor line
+			headingOnlyFromPos = { line: 0, ch: 0 };
+			headingOnlyToPos = {
+				line: cursor.line,
+				ch: editor.getLine(cursor.line).length,
+			};
+		}
+
+		// Check whether the current selection already matches the heading-only bounds
+		const sel = editor.listSelections()[0];
+		const anchorEq = sel.anchor.line === headingOnlyFromPos.line && sel.anchor.ch === headingOnlyFromPos.ch;
+		const headEq = sel.head.line === headingOnlyToPos.line && sel.head.ch === headingOnlyToPos.ch;
+
+		if (anchorEq && headEq) {
+			// Second press - expand to include child headings
+			this.selectHeadingWithChildren(editor);
+		} else {
+			// First press - select the heading only
+			editor.setSelection(headingOnlyFromPos, headingOnlyToPos);
+			editor.scrollIntoView({ from: headingOnlyToPos, to: headingOnlyToPos }, true);
+			new Notice('Press Alt + H again to expand selection to include child headings');
+		}
+	}
+
+	/**
+	 * Selects the current heading section without child headings.
+	 * @see {@link selectHeadingProgressive}
 	 * @param editor - The editor to make changes in.
 	 */
-	selectCurrentHeading(editor: Editor) {
+	private selectHeadingOnly(editor: Editor) {
 		const cursor = editor.getCursor();
 		const lineCount = editor.lineCount();
 
@@ -587,14 +645,11 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	/**
-	 * NOTE - Function of "Select Current and Child Headings" command (CTRL + ALT + SHIFT + S).
-	 * @summary Selects the current heading and all its child headings.
-	 * Uses the {@link findHeadingLine} function to find the current heading.
-	 * Uses the {@link getHeadingLevelAtLine} function to get the heading level.
-	 * @see {@link registerCommands} id: 'select-current-and-child-headings'
+	 * Selects the current heading section including all child headings.
+	 * @see {@link selectHeadingProgressive}
 	 * @param editor - The editor to make changes in.
 	 */
-	selectCurrentAndChildHeadings(editor: Editor) {
+	private selectHeadingWithChildren(editor: Editor) {
 		const cursor = editor.getCursor();
 		const lineCount = editor.lineCount();
 

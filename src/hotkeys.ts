@@ -43,40 +43,21 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     });
 
     /**
-     * NOTE - Select Current Heading command (Mod + Alt + S)
-     * @see {@link JustAnotherHotkeyPlugin.selectCurrentHeading}
+     * NOTE - Select Heading command (Alt + H).
+     * First press selects current heading; second press expands to include child headings.
+     * @see {@link JustAnotherHotkeyPlugin.selectHeadingProgressive}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
-        id: 'select-current-heading',
-        name: 'Select Current Heading',
+        id: 'select-heading',
+        name: 'Select Heading',
         editorCallback: (editor: Editor) => {
-            plugin.selectCurrentHeading(editor);
+            plugin.selectHeadingProgressive(editor);
         },
         hotkeys: [
             {
-                modifiers: ['Mod', 'Alt'],
-                key: 'S',
-            },
-        ],
-    });
-
-
-    /**
-     * NOTE - Select Current and Child Headings command (Mod + Alt + Shift + S)
-     * @see {@link JustAnotherHotkeyPlugin.selectCurrentAndChildHeadings}
-     * @param editor - The editor to make changes in.
-     */
-    plugin.addCommand({
-        id: 'select-current-and-child-headings',
-        name: 'Select Current and Child Headings',
-        editorCallback: (editor: Editor) => {
-            plugin.selectCurrentAndChildHeadings(editor);
-        },
-        hotkeys: [
-            {
-                modifiers: ['Mod', 'Alt', 'Shift'],
-                key: 'S',
+                modifiers: ['Alt'],
+                key: 'H',
             },
         ],
     });

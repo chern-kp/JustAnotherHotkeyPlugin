@@ -14,8 +14,8 @@ In development
 
 | Feature                                    | Default Hotkey           | Description                                                                                           |
 | ------------------------------------------ | ------------------------ | ----------------------------------------------------------------------------------------------------- |
-| Select to the End of Current Heading       | `Ctrl + S`               | Selects text from the current position to the end of the current heading (to the next heading).       |
-| Select to the Beginning of Current Heading | `Ctrl + Shift + S`       | Selects text from the current position to the start of the current heading (to the previous heading). |
+| Select to the End of Current Heading       | `Alt + Shift + Down`     | Selects text from the current position to the end of the current heading (to the next heading).       |
+| Select to the Beginning of Current Heading | `Alt + Shift + Up`       | Selects text from the current position to the start of the current heading (to the previous heading). |
 | Select Current Heading                     | `Ctrl + Alt + S`         | Selects the entire current heading section.                                                           |
 | Select Current Heading and Child Headings  | `Ctrl + Alt + Shift + S` | Selects the entire current heading section, including all sub-headings.                               |
 | Select All Current Level Headings          | `Ctrl + Alt + PageDown`  | Selects all headings at the current level.                                                            |

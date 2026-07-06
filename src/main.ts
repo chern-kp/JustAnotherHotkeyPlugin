@@ -37,7 +37,7 @@ const DEFAULT_SETTINGS: JustAnotherHotkeyPluginSettings = {
 
 export default class JustAnotherHotkeyPlugin extends Plugin {
 
-	settings: JustAnotherHotkeyPluginSettings;
+	settings!: JustAnotherHotkeyPluginSettings;
 	copyContentFeature: CopyContentFeature | null = null;
 
 	/**
@@ -482,7 +482,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 	//SECTION - Heading commands
 	/**
-	 * NOTE - Function of "Select to the End of Current Heading" command (CTRL + S).
+	 * NOTE - Function of "Select to the End of Current Heading" command (Alt + Shift + ArrowDown).
 	 * @summary Selects text from the current position to the end of the current heading (to the next heading).
 	 * Uses the {@link findHeadingLine} function to find the next heading.
 	 * @see {@link registerCommands} id: 'select-to-end-of-heading'
@@ -513,7 +513,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	/**
-	 * NOTE - Function of "Select to the Beginning of Current Heading" command (CTRL + SHIFT + S).
+	 * NOTE - Function of "Select to the Beginning of Current Heading" command (Alt + Shift + ArrowUp).
 	 * @summary Selects text from the current position to the beginning of the current heading (to the previous heading).
 	 * Uses the {@link findHeadingLine} function to find the previous heading.
 	 * @see {@link registerCommands} id: 'select-to-beginning-of-heading'
@@ -547,7 +547,8 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			}
 		}
 
-		editor.setSelection(fromPos, toPos);
+		editor.setSelection(toPos, fromPos);
+		editor.scrollIntoView({ from: fromPos, to: fromPos }, true);
 	}
 
 	/**
@@ -1208,36 +1209,6 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	//!SECTION - Link commands
 
 	/**
-	 * NOTE - Function of "Paste as Code Block" command (CTRL + ALT + V).
-	 * @summary Pastes clipboard content as a code block, automatically determining the language based on settings.
-	 * Uses the {@link determineCodeLanguage} function to determine the language.
-	 * @see {@link registerCommands} id: 'paste-as-code-block'
-	 * @param editor - The editor to make changes in.
-	 * @since 1.0.9
-	 */
-	async pasteAsCodeBlock(editor: Editor) {
-		try {
-			const clipboardText = await navigator.clipboard.readText();
-			if (clipboardText) {
-				const cursor = editor.getCursor();
-
-				const language = this.determineCodeLanguage();
-				const codeBlock = '```' + (language || '') + '\n' + clipboardText + '\n```\n';
-
-				editor.replaceRange(codeBlock, cursor);
-
-				const newPos = {
-					line: cursor.line + clipboardText.split('\n').length + 2,
-					ch: 0
-				};
-				editor.setCursor(newPos);
-			}
-		} catch (err) {
-			console.error('Failed to paste text: ', err);
-		}
-	}
-
-	/**
 	 * NOTE - Function of "Select Current Line" command (CTRL + L).
 	 * @summary Selects the entire logical line of text. Can be repeated for selecting next lines.
 	 * @see {@link registerCommands} id: 'select-current-line'
@@ -1385,5 +1356,37 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		editor.setSelection(cursor, toPos);
 		editor.scrollIntoView({ from: toPos, to: toPos }, true);
 	}
+
+
+	/**
+	 * NOTE - Function of "Paste as Code Block" command (CTRL + ALT + V).
+	 * @summary Pastes clipboard content as a code block, automatically determining the language based on settings.
+	 * Uses the {@link determineCodeLanguage} function to determine the language.
+	 * @see {@link registerCommands} id: 'paste-as-code-block'
+	 * @param editor - The editor to make changes in.
+	 * @since 1.0.9
+	 */
+	async pasteAsCodeBlock(editor: Editor) {
+		try {
+			const clipboardText = await navigator.clipboard.readText();
+			if (clipboardText) {
+				const cursor = editor.getCursor();
+
+				const language = this.determineCodeLanguage();
+				const codeBlock = '```' + (language || '') + '\n' + clipboardText + '\n```\n';
+
+				editor.replaceRange(codeBlock, cursor);
+
+				const newPos = {
+					line: cursor.line + clipboardText.split('\n').length + 2,
+					ch: 0
+				};
+				editor.setCursor(newPos);
+			}
+		} catch (err) {
+			console.error('Failed to paste text: ', err);
+		}
+	}
+
 
 }

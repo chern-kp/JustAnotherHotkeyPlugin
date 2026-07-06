@@ -5,7 +5,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     //SECTION - Heading commands
 
     /**
-     * NOTE - Select to the End of Current Heading command (Mod + S)
+     * NOTE - Select to the End of Current Heading command (Alt + Shift + ArrowDown)
      * @see {@link JustAnotherHotkeyPlugin.selectToEndOfCurrentHeading}
      * @param editor - The editor to make changes in.
      */
@@ -17,14 +17,14 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         },
         hotkeys: [
             {
-                modifiers: ['Mod'],
-                key: 'S',
+                modifiers: ['Alt', 'Shift'],
+                key: 'ArrowDown',
             },
         ],
     });
 
     /**
-     * NOTE - Select to the Beginning of Current Heading command (Mod + Shift + S)
+     * NOTE - Select to the Beginning of Current Heading command (Alt + Shift + ArrowUp)
      * @see {@link JustAnotherHotkeyPlugin.selectToBeginningOfCurrentHeading}
      * @param editor - The editor to make changes in.
      */
@@ -36,8 +36,8 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         },
         hotkeys: [
             {
-                modifiers: ['Mod', 'Shift'],
-                key: 'S',
+                modifiers: ['Alt', 'Shift'],
+                key: 'ArrowUp',
             },
         ],
     });

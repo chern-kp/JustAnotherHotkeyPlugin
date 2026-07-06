@@ -19,7 +19,7 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Turn off TAB key indentation')
-            .setDesc('When enabled, pressing TAB key will not indent the current line')
+            .setDesc('When enabled, pressing the TAB key will not indent the current line. Useful if TAB is used for navigation or other hotkeys.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.disableTabIndentation)
                 .onChange(async (value) => {
@@ -29,7 +29,7 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Copy inline code on double click')
-            .setDesc('When enabled, double-clicking on inline code blocks will copy their content')
+            .setDesc('Double-click any inline code (e.g., `code`) to instantly copy its text to the clipboard.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.copyInlineCodeOnDoubleClick)
                 .onChange(async (value) => {
@@ -37,56 +37,21 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 }));
 
-        new Setting(containerEl)
-            .setName('Use contextual code block language')
-            .setDesc('Automatically determine code block language based on context')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.useContextualCodeBlockLanguage)
-                .onChange(async (value) => {
-                    this.plugin.settings.useContextualCodeBlockLanguage = value;
-                    await this.plugin.saveSettings();
-                    this.display();
-                }));
 
-        new Setting(containerEl)
-            .setName('Search language code in...')
-            .setDesc('If multiple language names are found, the one with higher priority in the custom language list will be selected')
-            .addDropdown(dropdown => dropdown
-                .addOption('noteName', 'Note name')
-                .addOption('parentFolder', 'Parent folder name')
-                .addOption('nearestToRootAncestorFolder', 'Nearest to root ancestor folder name')
-                .addOption('tags', 'Tags')
-                .setValue(this.plugin.settings.languageSearchLocation)
-                .setDisabled(!this.plugin.settings.useContextualCodeBlockLanguage)
-                .onChange(async (value: 'noteName' | 'parentFolder' | 'nearestToRootAncestorFolder' | 'tags') => {
-                    this.plugin.settings.languageSearchLocation = value;
-                    await this.plugin.saveSettings();
-                }));
-
-        new Setting(containerEl)
-            .setName('Custom language list')
-            .setDesc('Enter programming languages (one per line). Languages higher in the list have higher priority.')
-            .addTextArea(text => text
-                .setValue(this.plugin.settings.codeBoxLanguages.join('\n'))
-                .setDisabled(!this.plugin.settings.useContextualCodeBlockLanguage)
-                .onChange(async (value) => {
-                    this.plugin.settings.codeBoxLanguages = value
-                        .split('\n')
-                        .map(lang => lang.trim())
-                        .filter(lang => lang.length > 0);
-                    await this.plugin.saveSettings();
-                }));
+        //SECTION - Copy Content Feature
+        new Setting(containerEl).setHeading().setName('Copy Content Feature');
 
         new Setting(containerEl)
             .setName('Turn on "Copy content of files in folder/tag" feature')
-            .setDesc('Turns on new buttons in file explorer and tag pane.')
+            .setDesc('Adds "Copy content" to the right-click menu on files and folders in the file explorer, and enables the "Copy all notes with tag…" command via the command palette.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.copyContentFeature)
                 .onChange(async (value) => {
                     this.plugin.settings.copyContentFeature = value;
                     await this.plugin.saveSettings();
 
-                    // Initialize CopyContentFeature again every time the setting changes. It adds/removes the "copy content" buttons.
+                    // Initialize or clean up CopyContentFeature when the setting toggles.
+                    // It adds/removes the "Copy content" buttons.
                     if (value) {
                         if (!this.plugin.copyContentFeature) {
                             this.plugin.copyContentFeature = new CopyContentFeature(this.app, this.plugin);
@@ -99,5 +64,51 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                         }
                     }
                 }));
-    }
+
+        //!SECTION - Copy Content Feature
+
+        //SECTION - Contextual Code Block Language
+        new Setting(containerEl).setHeading().setName('Contextual Code Block Language');
+
+        new Setting(containerEl)
+            .setName('Use contextual code block language')
+            .setDesc('When pasting text as a code block (Mod+Alt+V), the plugin will try to auto-detect the language based on the selected context below.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.useContextualCodeBlockLanguage)
+                .onChange(async (value) => {
+                    this.plugin.settings.useContextualCodeBlockLanguage = value;
+                    await this.plugin.saveSettings();
+                    this.display();
+                }));
+
+        new Setting(containerEl)
+            .setName('Search language code in…')
+            .setDesc('Where to look for the language name (e.g., note name, parent folder). If the language is found in multiple places, the one higher in the custom language list takes priority.')
+            .addDropdown(dropdown => dropdown
+                .addOption('noteName', 'Note name')
+                .addOption('parentFolder', 'Parent folder name')
+                .addOption('nearestToRootAncestorFolder', 'Nearest to root ancestor folder name')
+                .addOption('tags', 'Tags')
+                .setValue(this.plugin.settings.languageSearchLocation)
+                .setDisabled(!this.plugin.settings.useContextualCodeBlockLanguage)
+                .onChange(async (value) => {
+                    this.plugin.settings.languageSearchLocation = value as 'noteName' | 'parentFolder' | 'nearestToRootAncestorFolder' | 'tags';
+                    await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Custom language list')
+            .setDesc('Enter programming languages, one per line. Languages higher in the list have higher priority when auto-detection matches several candidates at once.')
+            .addTextArea(text => text
+                .setValue(this.plugin.settings.codeBoxLanguages.join('\n'))
+                .setDisabled(!this.plugin.settings.useContextualCodeBlockLanguage)
+                .onChange(async (value) => {
+                    this.plugin.settings.codeBoxLanguages = value
+                        .split('\n')
+                        .map(lang => lang.trim())
+                        .filter(lang => lang.length > 0);
+                    await this.plugin.saveSettings();
+                }));
+//!SECTION - Contextual Code Block Language
+}
 }

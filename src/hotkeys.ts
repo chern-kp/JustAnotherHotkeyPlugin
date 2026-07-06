@@ -87,7 +87,6 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
      * @see {@link JustAnotherHotkeyPlugin.selectAllCurrentLevelHeadings}
      * @param editor - The editor to make changes in.
      */
-    //TODO - Change hotkey
     plugin.addCommand({
         id: 'select-all-current-level-sections',
         name: 'Select All Current Level Sections',

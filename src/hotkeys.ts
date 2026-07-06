@@ -104,7 +104,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
 
     /**
-     * NOTE - "Move to Next Heading Level 1-6" commands (Mod + 1, Mod + 2 ... Mod + 6)
+     * NOTE - "Move to Next Heading Level 1-6" commands (Alt + 1, Alt + 2 ... Alt + 6)
      * @see {@link JustAnotherHotkeyPlugin.moveToNextHeadingOfLevel}
      * @param editor - The editor to make changes in.
      * @param level - The level of the heading to move to.
@@ -118,14 +118,14 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
             },
             hotkeys: [
                 {
-                    modifiers: ['Mod'],
+                    modifiers: ['Alt'],
                     key: `${level}`,
                 },
             ],
         });
 
         /**
-         * NOTE - "Move to Previous Heading Level 1-6" commands (Mod + Shift + 1, Mod + Shift + 2 ... Mod + Shift + 6)
+         * NOTE - "Move to Previous Heading Level 1-6" commands (Alt + Shift + 1, Alt + Shift + 2 ... Alt + Shift + 6)
          * @see {@link JustAnotherHotkeyPlugin.moveToPreviousHeadingOfLevel}
          * @param editor - The editor to make changes in.
          * @param level - The level of the heading to move to.
@@ -138,7 +138,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
             },
             hotkeys: [
                 {
-                    modifiers: ['Mod', 'Shift'],
+                modifiers: ['Alt', 'Shift'],
                     key: `${level}`,
                 },
             ],
@@ -322,7 +322,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     });
 
     /**
-     * NOTE - "Select Current Line" command (Mod + L)
+     * NOTE - "Select Current Line" command (Alt + L)
      * @see {@link JustAnotherHotkeyPlugin.selectCurrentLine}
      * @param editor - The editor to make changes in.
      */
@@ -334,7 +334,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         },
         hotkeys: [
             {
-                modifiers: ['Mod'],
+                modifiers: ['Alt'],
                 key: 'L',
             },
         ],
@@ -343,7 +343,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
 
     /**
-     * NOTE - "Select Previous Line" command (Mod + Shift + L)
+     * NOTE - "Select Previous Line" command (Alt + Shift + L)
      * @see {@link JustAnotherHotkeyPlugin.selectPreviousLine}
      * @param editor - The editor to make changes in.
      */
@@ -355,7 +355,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         },
         hotkeys: [
             {
-                modifiers: ['Mod', 'Shift'],
+                modifiers: ['Alt', 'Shift'],
                 key: 'L',
             },
         ],
@@ -381,7 +381,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     });
 
     /**
- * NOTE - "Select to Line Start" command (Mod + Shift + <)
+ * NOTE - "Select to Line Start" command (Alt + <)
  * @see {@link JustAnotherHotkeyPlugin.selectToLineStart}
  * @param editor - The editor to make changes in.
  */
@@ -393,14 +393,14 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         },
         hotkeys: [
             {
-                modifiers: ['Mod', 'Shift'],
+                modifiers: ['Alt'],
                 key: ',',
             },
         ],
     });
 
     /**
- * NOTE - "Select to Line End" command (Mod + Shift + >)
+ * NOTE - "Select to Line End" command (Alt + >)
  * @see {@link JustAnotherHotkeyPlugin.selectToLineEnd}
  * @param editor - The editor to make changes in.
  */
@@ -412,7 +412,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         },
         hotkeys: [
             {
-                modifiers: ['Mod', 'Shift'],
+                modifiers: ['Alt'],
                 key: '.',
             },
         ],

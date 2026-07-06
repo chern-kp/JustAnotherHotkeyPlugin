@@ -27,8 +27,8 @@ In development
 | -------------------------------------------- | -------------------- | ---------------------------------------------------------------- |
 | Move Cursor to Next Heading                  | `Ctrl + ~`           | Moves the cursor to the next heading                             |
 | Move Cursor to Previous Heading              | `Ctrl + SHIFT + ~`   | Moves the cursor to the previous heading                         |
-| Move Cursor to Next Heading of Level 1-6     | `Ctrl + 1-6`         | Moves the cursor to the next heading of the specified level.     |
-| Move Cursor to Previous Heading of Level 1-6 | `Ctrl + Shift + 1-6` | Moves the cursor to the previous heading of the specified level. |
+| Move Cursor to Next Heading of Level 1-6     | `Alt + 1-6`          | Moves the cursor to the next heading of the specified level.     |
+| Move Cursor to Previous Heading of Level 1-6 | `Alt + Shift + 1-6`  | Moves the cursor to the previous heading of the specified level. |
 
 #### Links
 | Feature                          | Default Hotkey           | Description                                                                                                                                         |
@@ -41,11 +41,11 @@ In development
 #### Lines
 | Feature                         | Default Hotkey     | Description                                                                                                      |
 | ------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| Select Current Line             | `Ctrl + L`         | Selects the entire logical line of text (until next line break). **Repeatable** for next lines.                  |
-| Select Previous Line            | `Ctrl + Shift + L` | Selects previous line of text (until previous line break). **Repeatable** for previous lines.                    |
+| Select Current Line             | `Alt + L`          | Selects the entire logical line of text (until next line break). **Repeatable** for next lines.                  |
+| Select Previous Line            | `Alt + Shift + L`  | Selects previous line of text (until previous line break). **Repeatable** for previous lines.                    |
 | Clear Selection of Current Line | `Ctrl + Alt + L`   | Clears selection of current logical line of text (until previous line break). **Repeatable** for previous lines. |
-| Select to Line Start            | `Ctrl + Shift + <` | Selects text from the current position to the start of the line. Ignores list markers.                           |
-| Select to Line End              | `Ctrl + Shift + >` | Selects text from the current position to the end of the line.                                                   |
+| Select to Line Start            | `Alt + <`          | Selects text from the current position to the start of the line. Ignores list markers.                           |
+| Select to Line End              | `Alt + >`          | Selects text from the current position to the end of the line.                                                   |
 
 #### Other
 | Feature             | Default Hotkey   | Description                                                                                          |

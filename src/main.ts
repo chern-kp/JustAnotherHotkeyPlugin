@@ -859,7 +859,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 
 	/**
-	 * NOTE - Function of "Move to Next Heading Level 1-6" commands (CTRL + 1, CTRL + 2 ... CTRL + 6).
+	 * NOTE - Function of "Move to Next Heading Level 1-6" commands (Alt + 1, Alt + 2 ... Alt + 6).
 	 * @summary Moves the cursor to the next heading of the specified level.
 	 * Uses the {@link findHeadingLine} function to find the next heading of the specified level.
 	 * Uses the {@link scrollToPosition} function to scroll to the position of the heading.
@@ -884,7 +884,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	/**
-	 * NOTE - Function of "Move to Previous Heading Level 1-6" commands (CTRL + SHIFT + 1, CTRL + SHIFT + 2 ... CTRL + SHIFT + 6).
+	 * NOTE - Function of "Move to Previous Heading Level 1-6" commands (Alt + Shift + 1, Alt + Shift + 2 ... Alt + Shift + 6).
 	 * @summary Moves the cursor to the previous heading of the specified level.
 	 * Uses the {@link findHeadingLine} function to find the previous heading of the specified level.
 	 * Uses the {@link scrollToPosition} function to scroll to the position of the heading.
@@ -1367,7 +1367,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	//!SECTION - Link commands
 
 	/**
-	 * NOTE - Function of "Select Current Line" command (CTRL + L).
+	 * NOTE - Function of "Select Current Line" command (Alt + L).
 	 * @summary Selects the entire logical line of text. Can be repeated for selecting next lines.
 	 * @see {@link registerCommands} id: 'select-current-line'
 	 * @param editor - The editor to make changes in.
@@ -1403,7 +1403,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	/**
-	 * NOTE - Function of "Select Previous Line" command (CTRL + SHIFT + L).
+	 * NOTE - Function of "Select Previous Line" command (Alt + Shift + L).
 	 * @summary Selects previous line of text. Can be repeated for previous lines.
 	 * @see {@link registerCommands} id: 'select-previous-line'
 	 * @param editor - The editor to make changes in.
@@ -1478,7 +1478,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	/**
-	 * NOTE - Function of "Select to Line Start" command (CTRL + SHIFT + <).
+	 * NOTE - Function of "Select to Line Start" command (Alt + <).
 	 * @summary Selects text from cursor position to the start of line. Ignores list markers.
 	 * @see {@link registerCommands} id: 'select-to-line-start'
 	 * @param editor - The editor to make changes in.
@@ -1501,7 +1501,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	/**
-	 * NOTE - Function of "Select to Line End" command (CTRL + SHIFT + >).
+	 * NOTE - Function of "Select to Line End" command (Alt + >).
 	 * @summary Selects text from cursor position to the end of line.
 	 * @see {@link registerCommands} id: 'select-to-line-end'
 	 * @param editor - The editor to make changes in.

@@ -9,29 +9,49 @@ In development
 ## Features
 ### New hotkeys and commands
 
-| Feature                                      | Default Hotkey               | Description                                                                                                                                         |
-| -------------------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Select to the End of Current Heading         | `Ctrl/Cmd + S`               | Selects text from the current position to the end of the current heading (to the next heading).                                                     |
-| Select to the Beginning of Current Heading   | `Ctrl/Cmd + Shift + S`       | Selects text from the current position to the start of the current heading (to the previous heading).                                               |
-| Select Current Heading                       | `Ctrl/Cmd + Alt + S`         | Selects the entire current heading section.                                                                                                         |
-| Select Current Heading and Child Headings    | `Ctrl/Cmd + Alt + Shift + S` | Selects the entire current heading section, including all sub-headings.                                                                             |
-| Select All Current Level Headings            | `Ctrl/Cmd + Alt + PageDown`  | Selects all headings at the current level.                                                                                                          |
-| Move Cursor to Next Heading                  | `Ctrl/Cmd + ~`               | Moves the cursor to the next heading                                                                                                                |
-| Move Cursor to Previous Heading              | `Ctrl/Cmd + SHIFT + ~`       | Moves the cursor to the previous heading                                                                                                            |
-| Move Cursor to Next Heading of Level 1-6     | `Ctrl/Cmd + 1-6`             | Moves the cursor to the next heading of the specified level.                                                                                        |
-| Move Cursor to Previous Heading of Level 1-6 | `Ctrl/Cmd + Shift + 1-6`     | Moves the cursor to the previous heading of the specified level.                                                                                    |
-| Select Link Display Text                     | `Ctrl/Cmd + \`               | Selects the display text of an internal link (the text after `\|`), if present. If not present, adds `\|` and places the cursor after it for typing |
-| Select Link Without Display Text             | `Ctrl/Cmd + Shift + \`       | Selects the text before `\|` in an internal link, or the entire internal link if `\|` is absent.                                                    |
-| Select Link Content                          | `Ctrl/Cmd + Alt + \`         | Selects the content of the internal link, excluding the surrounding brackets.                                                                       |
-| Select Full Link                             | `Ctrl/Cmd + Shift + Alt + \` | Selects the entire internal link, including the surrounding brackets.                                                                               |
-| Paste As Code Block                          | `Ctrl/Cmd + Alt + V`         | Pastes clipboard content as a code block with automatic language detection (if enabled in settings).                                                |
-| Select Current Line                          | `Ctrl/Cmd + L`               | Selects the entire logical line of text (until next line break). **Repeatable** for next lines.                                                     |
-| Select Previous Line                         | `Ctrl/Cmd + Shift + L`       | Selects previous line of text (until previous line break). **Repeatable** for previous lines.                                                       |
-| Clear Selection of Current Line              | `Ctrl/Cmd + Alt + L`         | Clears selection of current logical line of text (until previous line break). **Repeatable** for previous lines.                                    |
-| Select to Line Start                         | `Ctrl/Cmd + Shift + <`       | Selects text from the current position to the start of the line. Ignores list markers.                                                              |
-| Select to Line End                           | `Ctrl/Cmd + Shift + >`       | Selects text from the current position to the end of the line.                                                                                      |
-| Move Heading Up                              | `Alt + PageUp`               | Moves entire heading section (including content) up, swapping with the heading above.                                                               |
-| Move Heading Down                            | `Alt + PageDown`             | Moves entire heading section (including content) down, swapping with the heading below.                                                             |
+#### Headings: Selection and Editing
+> `Ctrl` is a button on Windows and Linux, `Command` is a button on macOS
+
+| Feature                                    | Default Hotkey           | Description                                                                                           |
+| ------------------------------------------ | ------------------------ | ----------------------------------------------------------------------------------------------------- |
+| Select to the End of Current Heading       | `Ctrl + S`               | Selects text from the current position to the end of the current heading (to the next heading).       |
+| Select to the Beginning of Current Heading | `Ctrl + Shift + S`       | Selects text from the current position to the start of the current heading (to the previous heading). |
+| Select Current Heading                     | `Ctrl + Alt + S`         | Selects the entire current heading section.                                                           |
+| Select Current Heading and Child Headings  | `Ctrl + Alt + Shift + S` | Selects the entire current heading section, including all sub-headings.                               |
+| Select All Current Level Headings          | `Ctrl + Alt + PageDown`  | Selects all headings at the current level.                                                            |
+| Move Heading Up                            | `Alt + PageUp`           | Moves entire heading section (including content) up, swapping with the heading above.                 |
+| Move Heading Down                          | `Alt + PageDown`         | Moves entire heading section (including content) down, swapping with the heading below.               |
+
+#### Headings: Navigation
+| Feature                                      | Default Hotkey       | Description                                                      |
+| -------------------------------------------- | -------------------- | ---------------------------------------------------------------- |
+| Move Cursor to Next Heading                  | `Ctrl + ~`           | Moves the cursor to the next heading                             |
+| Move Cursor to Previous Heading              | `Ctrl + SHIFT + ~`   | Moves the cursor to the previous heading                         |
+| Move Cursor to Next Heading of Level 1-6     | `Ctrl + 1-6`         | Moves the cursor to the next heading of the specified level.     |
+| Move Cursor to Previous Heading of Level 1-6 | `Ctrl + Shift + 1-6` | Moves the cursor to the previous heading of the specified level. |
+
+#### Links
+| Feature                          | Default Hotkey           | Description                                                                                                                                         |
+| -------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Select Link Display Text         | `Ctrl + \`               | Selects the display text of an internal link (the text after `\|`), if present. If not present, adds `\|` and places the cursor after it for typing |
+| Select Link Without Display Text | `Ctrl + Shift + \`       | Selects the text before `\|` in an internal link, or the entire internal link if `\|` is absent.                                                    |
+| Select Link Content              | `Ctrl + Alt + \`         | Selects the content of the internal link, excluding the surrounding brackets.                                                                       |
+| Select Full Link                 | `Ctrl + Shift + Alt + \` | Selects the entire internal link, including the surrounding brackets.                                                                               |
+
+#### Lines
+| Feature                         | Default Hotkey     | Description                                                                                                      |
+| ------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Select Current Line             | `Ctrl + L`         | Selects the entire logical line of text (until next line break). **Repeatable** for next lines.                  |
+| Select Previous Line            | `Ctrl + Shift + L` | Selects previous line of text (until previous line break). **Repeatable** for previous lines.                    |
+| Clear Selection of Current Line | `Ctrl + Alt + L`   | Clears selection of current logical line of text (until previous line break). **Repeatable** for previous lines. |
+| Select to Line Start            | `Ctrl + Shift + <` | Selects text from the current position to the start of the line. Ignores list markers.                           |
+| Select to Line End              | `Ctrl + Shift + >` | Selects text from the current position to the end of the line.                                                   |
+
+#### Other
+| Feature             | Default Hotkey   | Description                                                                                          |
+| ------------------- | ---------------- | ---------------------------------------------------------------------------------------------------- |
+| Paste As Code Block | `Ctrl + Alt + V` | Pastes clipboard content as a code block with automatic language detection (if enabled in settings). |
+
 
 
 ### Additional Features

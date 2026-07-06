@@ -17,6 +17,7 @@ In development
 | Select to the End of Current Heading       | `Alt + Shift + Down`     | Selects text from the current position to the end of the current heading (to the next heading).       |
 | Select to the Beginning of Current Heading | `Alt + Shift + Up`       | Selects text from the current position to the start of the current heading (to the previous heading). |
 | Select Current Heading                     | `Alt + H`                | Selects current heading section. **Press again to include all child headings**.                           |
+| Select Heading (with parent)               | `Alt + Shift + H`        | Selects current heading with its parent. **Press again** to select section of higher level.              |
 | Select All Current Level Headings          | `Ctrl + Alt + PageDown`  | Selects all headings at the current level.                                                            |
 | Move Heading Up                            | `Alt + PageUp`           | Moves entire heading section (including content) up, swapping with the heading above.                 |
 | Move Heading Down                          | `Alt + PageDown`         | Moves entire heading section (including content) down, swapping with the heading below.               |

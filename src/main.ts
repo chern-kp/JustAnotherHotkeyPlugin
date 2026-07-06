@@ -705,6 +705,89 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	/**
+	 * NOTE - Progressive upward heading selection (Alt + Shift + H).
+	 * Each press uses the current selection anchor to find and select the parent heading.
+	 * Handles level gaps — jumps to the next heading with a strictly smaller level.
+	 */
+	selectHeadingUpwardProgressive(editor: Editor) {
+		const lineCount = editor.lineCount();
+		const sel = editor.listSelections()[0];
+
+		// Use the current selection anchor as the reference point
+		let anchorLine = sel.anchor.line;
+
+		// Determine the heading level at the anchor
+		let anchorLevel = this.getHeadingLevelAtLine(editor, anchorLine);
+
+		// If anchor is not on a heading line, find the nearest heading above it
+		if (anchorLevel === null) {
+			const nearestAbove = this.findHeadingLine(editor, anchorLine, 'previous');
+			if (nearestAbove === -1) {
+				new Notice('No heading found near the selection.');
+				return;
+			}
+			anchorLine = nearestAbove;
+			anchorLevel = this.getHeadingLevelAtLine(editor, anchorLine);
+			if (anchorLevel === null) {
+				new Notice('No heading found near the selection.');
+				return;
+			}
+		}
+
+		// Find the nearest parent heading with a strictly smaller level above the anchor
+		let parentLine = -1;
+		let parentLevel = 0;
+		for (let i = anchorLine - 1; i >= 0; i--) {
+			const level = this.getHeadingLevelAtLine(editor, i);
+			if (level !== null && level < anchorLevel) {
+				parentLine = i;
+				parentLevel = level;
+				break;
+			}
+		}
+
+		if (parentLine === -1) {
+			new Notice('Already at the highest level heading');
+			return;
+		}
+
+		// Compute toPos — end of the parent's section (including all descendants)
+		let parentEndLine = lineCount;
+		for (let i = parentLine + 1; i < lineCount; i++) {
+			const level = this.getHeadingLevelAtLine(editor, i);
+			if (level !== null && level <= parentLevel) {
+				parentEndLine = i;
+				break;
+			}
+		}
+
+		const fromPos: EditorPosition = { line: parentLine, ch: 0 };
+		const toPos: EditorPosition = {
+			line: parentEndLine - 1,
+			ch: editor.getLine(parentEndLine - 1).length,
+		};
+
+		editor.setSelection(fromPos, toPos);
+		editor.scrollIntoView({ from: fromPos, to: fromPos }, true);
+
+		// Check if there is a further parent above
+		let hasGrandParent = false;
+		for (let i = parentLine - 1; i >= 0; i--) {
+			const level = this.getHeadingLevelAtLine(editor, i);
+			if (level !== null && level < parentLevel) {
+				hasGrandParent = true;
+				break;
+			}
+		}
+
+		if (hasGrandParent) {
+			new Notice('Press Alt + Shift + H again to expand to the next parent heading');
+		} else {
+			new Notice('Expanded to the highest level heading');
+		}
+	}
+
+	/**
 	 * NOTE - Function of "Select All Current Level Headings" command (CTRL + ALT + PAGE DOWN).
 	 * @summary Selects all headings of the current level.
 	 * Uses the {@link getHeadingLevelAtLine} function to get the heading level.

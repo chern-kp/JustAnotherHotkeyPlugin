@@ -63,6 +63,26 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     });
 
     /**
+     * NOTE - Select Heading Upward command (Alt + Shift + H).
+     * First press selects current heading with its parent; repeated presses expand further upward.
+     * @see {@link JustAnotherHotkeyPlugin.selectHeadingUpwardProgressive}
+     * @param editor - The editor to make changes in.
+     */
+    plugin.addCommand({
+        id: 'select-heading-upward',
+        name: 'Select Heading Upward',
+        editorCallback: (editor: Editor) => {
+            plugin.selectHeadingUpwardProgressive(editor);
+        },
+        hotkeys: [
+            {
+                modifiers: ['Alt', 'Shift'],
+                key: 'H',
+            },
+        ],
+    });
+
+    /**
      * NOTE - Select All Current Level Headings command (Mod + Alt + PageDown)
      * @see {@link JustAnotherHotkeyPlugin.selectAllCurrentLevelHeadings}
      * @param editor - The editor to make changes in.

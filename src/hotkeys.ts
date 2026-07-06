@@ -2,16 +2,16 @@ import { Editor } from 'obsidian';
 import JustAnotherHotkeyPlugin from './main';
 
 export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
-    //SECTION - Heading commands
+    //SECTION - Section commands
 
     /**
-     * NOTE - Select to the End of Current Heading command (Alt + Shift + ArrowDown)
+     * NOTE - Select to the End of Current Section command (Alt + Shift + ArrowDown)
      * @see {@link JustAnotherHotkeyPlugin.selectToEndOfCurrentHeading}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
-        id: 'select-to-end-of-heading',
-        name: 'Select to the End of Current Heading',
+        id: 'select-to-end-of-section',
+        name: 'Select to the End of Current Section',
         editorCallback: (editor: Editor) => {
             plugin.selectToEndOfCurrentHeading(editor);
         },
@@ -24,13 +24,13 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     });
 
     /**
-     * NOTE - Select to the Beginning of Current Heading command (Alt + Shift + ArrowUp)
+     * NOTE - Select to the Beginning of Current Section command (Alt + Shift + ArrowUp)
      * @see {@link JustAnotherHotkeyPlugin.selectToBeginningOfCurrentHeading}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
-        id: 'select-to-beginning-of-heading',
-        name: 'Select to the Beginning of Current Heading',
+        id: 'select-to-beginning-of-section',
+        name: 'Select to the Beginning of Current Section',
         editorCallback: (editor: Editor) => {
             plugin.selectToBeginningOfCurrentHeading(editor);
         },
@@ -43,14 +43,14 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     });
 
     /**
-     * NOTE - Select Heading command (Alt + H).
-     * First press selects current heading; second press expands to include child headings.
+     * NOTE - Select Section command (Alt + H).
+     * First press selects the current section; second press expands to include child sections.
      * @see {@link JustAnotherHotkeyPlugin.selectHeadingProgressive}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
-        id: 'select-heading',
-        name: 'Select Heading',
+        id: 'select-section',
+        name: 'Select Section',
         editorCallback: (editor: Editor) => {
             plugin.selectHeadingProgressive(editor);
         },
@@ -63,14 +63,14 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     });
 
     /**
-     * NOTE - Select Heading Upward command (Alt + Shift + H).
-     * First press selects current heading with its parent; repeated presses expand further upward.
+     * NOTE - Select Section Upward command (Alt + Shift + H).
+     * First press selects the current section with its parent; repeated presses expand further upward.
      * @see {@link JustAnotherHotkeyPlugin.selectHeadingUpwardProgressive}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
-        id: 'select-heading-upward',
-        name: 'Select Heading Upward',
+        id: 'select-section-upward',
+        name: 'Select Section Upward',
         editorCallback: (editor: Editor) => {
             plugin.selectHeadingUpwardProgressive(editor);
         },
@@ -83,14 +83,14 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     });
 
     /**
-     * NOTE - Select All Current Level Headings command (Mod + Alt + PageDown)
+     * NOTE - Select All Current Level Sections command (Mod + Alt + PageDown)
      * @see {@link JustAnotherHotkeyPlugin.selectAllCurrentLevelHeadings}
      * @param editor - The editor to make changes in.
      */
     //TODO - Change hotkey
     plugin.addCommand({
-        id: 'select-all-current-level-headings',
-        name: 'Select All Current Level Headings',
+        id: 'select-all-current-level-sections',
+        name: 'Select All Current Level Sections',
         editorCallback: (editor: Editor) => {
             plugin.selectAllCurrentLevelHeadings(editor);
         },
@@ -184,13 +184,13 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     });
 
     /**
-     * NOTE - "Move Heading (with content) Up" command (Alt + PageUp)
+     * NOTE - "Move Section Up" command (Alt + PageUp)
      * @see {@link JustAnotherHotkeyPlugin.moveHeadingUp}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
-        id: 'move-heading-up',
-        name: 'Move Heading (with content) Up',
+        id: 'move-section-up',
+        name: 'Move Section Up',
         editorCallback: (editor: Editor) => {
             plugin.moveHeadingUp(editor);
         },
@@ -203,13 +203,13 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     });
 
     /**
-     * NOTE - "Move Heading (with content) Down" command (Alt + PageDown)
+     * NOTE - "Move Section Down" command (Alt + PageDown)
      * @see {@link JustAnotherHotkeyPlugin.moveHeadingDown}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
-        id: 'move-heading-down',
-        name: 'Move Heading (with content) Down',
+        id: 'move-section-down',
+        name: 'Move Section Down',
         editorCallback: (editor: Editor) => {
             plugin.moveHeadingDown(editor);
         },
@@ -221,7 +221,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
         ],
     });
 
-    //!SECTION - Heading commands
+    //!SECTION - Section commands
 
     //SECTION - Link commands
     /**

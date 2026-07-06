@@ -480,12 +480,12 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 	//!SECTION - Additional functions
 
-	//SECTION - Heading commands
+	//SECTION - Section commands
 	/**
-	 * NOTE - Function of "Select to the End of Current Heading" command (Alt + Shift + ArrowDown).
-	 * @summary Selects text from the current position to the end of the current heading (to the next heading).
+	 * NOTE - Function of "Select to the End of Current Section" command (Alt + Shift + ArrowDown).
+	 * @summary Selects text from the current position to the end of the current section.
 	 * Uses the {@link findHeadingLine} function to find the next heading.
-	 * @see {@link registerCommands} id: 'select-to-end-of-heading'
+	 * @see {@link registerCommands} id: 'select-to-end-of-section'
 	 * @param editor - The editor to make changes in.
 	 */
 	selectToEndOfCurrentHeading(editor: Editor) {
@@ -513,10 +513,10 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	/**
-	 * NOTE - Function of "Select to the Beginning of Current Heading" command (Alt + Shift + ArrowUp).
-	 * @summary Selects text from the current position to the beginning of the current heading (to the previous heading).
+	 * NOTE - Function of "Select to the Beginning of Current Section" command (Alt + Shift + ArrowUp).
+	 * @summary Selects text from the current position to the beginning of the current section.
 	 * Uses the {@link findHeadingLine} function to find the previous heading.
-	 * @see {@link registerCommands} id: 'select-to-beginning-of-heading'
+	 * @see {@link registerCommands} id: 'select-to-beginning-of-section'
 	 * @param editor - The editor to make changes in.
 	 */
 	selectToBeginningOfCurrentHeading(editor: Editor) {
@@ -552,9 +552,9 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	/**
-	 * NOTE - Progressive heading selection on Alt + H.
-	 * First press selects the current heading. Second press expands to include child headings.
-	 * Uses the internal helper to compute heading bounds,
+	 * NOTE - Progressive section selection on Alt + H.
+	 * First press selects the current section. Second press expands to include child sections.
+	 * Uses the internal helper to compute section bounds,
 	 * then compares the current selection.
 	 */
 	selectHeadingProgressive(editor: Editor) {
@@ -608,7 +608,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			// First press - select the heading only
 			editor.setSelection(headingOnlyFromPos, headingOnlyToPos);
 			editor.scrollIntoView({ from: headingOnlyToPos, to: headingOnlyToPos }, true);
-			new Notice('Press Alt + H again to expand selection to include child headings');
+			new Notice('Press Alt + H again to expand selection to include child sections');
 		}
 	}
 
@@ -705,8 +705,8 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	/**
-	 * NOTE - Progressive upward heading selection (Alt + Shift + H).
-	 * Each press uses the current selection anchor to find and select the parent heading.
+	 * NOTE - Progressive upward section selection (Alt + Shift + H).
+	 * Each press uses the current selection anchor to find and select the parent section.
 	 * Handles level gaps — jumps to the next heading with a strictly smaller level.
 	 */
 	selectHeadingUpwardProgressive(editor: Editor) {
@@ -747,7 +747,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 
 		if (parentLine === -1) {
-			new Notice('Already at the highest level heading');
+			new Notice('Already at the highest level');
 			return;
 		}
 
@@ -781,16 +781,16 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		}
 
 		if (hasGrandParent) {
-			new Notice('Press Alt + Shift + H again to expand to the next parent heading');
+			new Notice('Press Alt + Shift + H again to expand to the next parent section');
 		} else {
-			new Notice('Expanded to the highest level heading');
+			new Notice('Expanded to the highest level');
 		}
 	}
 
 	/**
-	 * NOTE - Function of "Select All Current Level Headings" command (CTRL + ALT + PAGE DOWN).
-	 * @summary Selects all heading sections of the current level using multi‑cursor.
-	 * Each heading's section includes its content and all descendant headings.
+	 * NOTE - Function of "Select All Current Level Sections" command (Ctrl + Alt + PageDown).
+	 * @summary Selects all sections of the current level using multi‑cursor.
+	 * Each section includes its content and all descendant sections.
 	 * @param editor - The editor to make changes in.
 	 */
 	selectAllCurrentLevelHeadings(editor: Editor) {
@@ -854,7 +854,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 		editor.setSelections(selections);
 
-		new Notice(`${headingLines.length} heading sections of level ${currentHeadingLevel} were selected.`);
+		new Notice(`${headingLines.length} sections of level ${currentHeadingLevel} were selected.`);
 	}
 
 
@@ -947,12 +947,12 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	/**
-	 * NOTE - Function of "Move Heading (with content) Up" command (Alt + PageUp).
-	 * @summary Moves entire heading section (including content) up, swapping with the heading above.
+	 * NOTE - Function of "Move Section Up" command (Alt + PageUp).
+	 * @summary Moves entire section (including content) up, swapping with the section above.
 	 * Uses the {@link findHeadingLine} function to find the current heading.
 	 * Uses the {@link getHeadingLevelAtLine} function to get the level of the current heading.
 	 * Uses the {@link scrollToPosition} function to scroll to the position of the heading.
-	 * @see {@link registerCommands} id: 'move-heading-up'
+	 * @see {@link registerCommands} id: 'move-section-up'
 	 * @param editor - The editor to make changes in.
 	 * @since 1.0.11
 	 */
@@ -1084,12 +1084,12 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	}
 
 	/**
-	 * NOTE - Function of "Move Heading (with content) Down" command (Alt + PageDown).
-	 * @summary Moves entire heading section (including content) down, swapping with the heading below.
+	 * NOTE - Function of "Move Section Down" command (Alt + PageDown).
+	 * @summary Moves entire section (including content) down, swapping with the section below.
 	 * Uses the {@link findHeadingLine} function to find the current heading.
 	 * Uses the {@link getHeadingLevelAtLine} function to get the level of the current heading.
 	 * Uses the {@link scrollToPosition} function to scroll to the position of the heading.
-	 * @see {@link registerCommands} id: 'move-heading-down'
+	 * @see {@link registerCommands} id: 'move-section-down'
 	 * @param editor - The editor to make changes in.
 	 * @since 1.0.11
 	 */
@@ -1213,7 +1213,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		new Notice(`Heading "${currentHeadingText}" moved below. Now located below "${targetHeadingText}" and above "${belowHeadingText}"`);
 	}
 
-	//!SECTION - Heading commands
+	//!SECTION - Section commands
 
 	//SECTION - Link commands
 	/**

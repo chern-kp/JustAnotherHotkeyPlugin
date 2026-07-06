@@ -789,15 +789,15 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 	/**
 	 * NOTE - Function of "Select All Current Level Headings" command (CTRL + ALT + PAGE DOWN).
-	 * @summary Selects all headings of the current level.
-	 * Uses the {@link getHeadingLevelAtLine} function to get the heading level.
-	 * @see {@link registerCommands} id: 'select-all-current-level-headings'
+	 * @summary Selects all heading sections of the current level using multi‑cursor.
+	 * Each heading's section includes its content and all descendant headings.
 	 * @param editor - The editor to make changes in.
 	 */
 	selectAllCurrentLevelHeadings(editor: Editor) {
 		const cursor = editor.getCursor();
 		const lineCount = editor.lineCount();
 
+		// Determine which heading the cursor belongs to
 		let currentHeadingLine = -1;
 		let currentHeadingLevel = 0;
 		for (let i = cursor.line; i >= 0; i--) {
@@ -814,27 +814,47 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			return;
 		}
 
-		const headings = [];
+		// Collect all headings of the same level
+		const headingLines: number[] = [];
 		for (let i = 0; i < lineCount; i++) {
 			const level = this.getHeadingLevelAtLine(editor, i);
 			if (level === currentHeadingLevel) {
-				headings.push(i);
+				headingLines.push(i);
 			}
 		}
 
-		if (headings.length === 0) {
+		if (headingLines.length === 0) {
 			new Notice('No headings of the current level found.');
 			return;
 		}
 
-		const fromPos = { line: headings[0], ch: 0 };
-		const toLine = editor.getLine(headings[headings.length - 1] + 1) ? headings[headings.length - 1] + 1 : lineCount - 1;
-		const toPos = { line: toLine, ch: editor.getLine(toLine).length };
+		// Build a multi‑selection: one range per heading
+		const selections: { anchor: EditorPosition; head: EditorPosition }[] = [];
 
-		editor.setSelection(fromPos, toPos);
-		editor.scrollIntoView({ from: toPos, to: toPos }, true);
+		for (const hLine of headingLines) {
+			const fromPos: EditorPosition = { line: hLine, ch: 0 };
 
-		new Notice(`${headings.length} headings of level ${currentHeadingLevel} were selected.`);
+			// Find the end of this heading's section
+			let endLine = lineCount;
+			for (let i = hLine + 1; i < lineCount; i++) {
+				const level = this.getHeadingLevelAtLine(editor, i);
+				if (level !== null && level <= currentHeadingLevel) {
+					endLine = i;
+					break;
+				}
+			}
+
+			const toPos: EditorPosition = {
+				line: endLine - 1,
+				ch: editor.getLine(endLine - 1).length,
+			};
+
+			selections.push({ anchor: fromPos, head: toPos });
+		}
+
+		editor.setSelections(selections);
+
+		new Notice(`${headingLines.length} heading sections of level ${currentHeadingLevel} were selected.`);
 	}
 
 

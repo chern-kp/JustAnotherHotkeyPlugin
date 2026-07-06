@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { Editor, Notice, Plugin } from 'obsidian';
+import { Editor, EditorPosition, Notice, Plugin } from 'obsidian';
 import { registerCommands } from './hotkeys';
 import { keymap } from '@codemirror/view';
 import { Prec } from '@codemirror/state';
@@ -315,7 +315,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	 * @param editor - The editor to scroll.
 	 * @param pos - The position to scroll to.
 	 */
-	private scrollToPosition(editor: Editor, pos: CodeMirror.Position) {
+	private scrollToPosition(editor: Editor, pos: EditorPosition) {
 		editor.setCursor(pos);
 		editor.scrollIntoView({ from: pos, to: pos }, true);
 	}
@@ -493,7 +493,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		const nextHeadingLine = this.findHeadingLine(editor, cursor.line, 'next');
 
 		const fromPos = cursor;
-		let toPos: CodeMirror.Position;
+		let toPos: EditorPosition;
 
 		if (nextHeadingLine !== -1) {
 			toPos = {
@@ -525,7 +525,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		const headingMatch = currentLineText.match(/^(#+)\s/);
 
 		const toPos = cursor;
-		let fromPos: CodeMirror.Position;
+		let fromPos: EditorPosition;
 
 		if (headingMatch) {
 			fromPos = {

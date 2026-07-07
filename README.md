@@ -1,10 +1,8 @@
 # JustAnotherHotkeyPlugin
 
-JustAnotherHotkeyPlugin is an Obsidian plugin that adds new useful hotkeys for text editing, text selection, navigation and several additional features.
-This plugin also adds features such as ability to copy inline code content on double click, and code block language detection that depends on the note's file path (configurable).
+**Just Another Hotkey Plugin** is an Obsidian plugin that adds new useful hotkeys for text editing, text selection, navigation and several additional features that obsidian powerusers could find useful.
 
-
-In development
+>I continue to work on this plugin and add new features, so I'm happy to get any suggestions or feedback. Initially created to add features to Obsidian that I felt would be useful for my daily Obsidian usage, but I hope it can also be useful to others.
 
 ## Features
 ### New hotkeys and commands
@@ -44,32 +42,40 @@ In development
 | Select Current Line             | `Alt + L`          | Selects the entire logical line of text (until next line break). **Repeatable** for next lines.                  |
 | Select Previous Line            | `Alt + Shift + L`  | Selects previous line of text (until previous line break). **Repeatable** for previous lines.                    |
 | Clear Selection of Current Line | `Ctrl + Alt + L`   | Clears selection of current logical line of text (until previous line break). **Repeatable** for previous lines. |
-| Select to Line Start            | `Alt + <`          | Selects text from the current position to the start of the line. Ignores list markers.                           |
-| Select to Line End              | `Alt + >`          | Selects text from the current position to the end of the line.                                                   |
+| Select to Line Start            | `Alt + ,`          | Selects text from the current position to the start of the line. Ignores list markers.                           |
+| Select to Line End              | `Alt + .`          | Selects text from the current position to the end of the line.                                                   |
 
 #### Other
 | Feature             | Default Hotkey   | Description                                                                                          |
 | ------------------- | ---------------- | ---------------------------------------------------------------------------------------------------- |
 | Paste As Code Block | `Ctrl + Alt + V` | Pastes clipboard content as a code block with automatic language detection (if enabled in settings). |
 
-
-
 ### Additional Features
+#### Contextual Code Block Language Detection
 
-- **Smart Code Block Language Detection**: When using `Paste As Code Block` command, the plugin can automatically detect appropriate language based on note's name, parent folder, or nearest root folder
+When you use the **Paste As Code Block** command (`Ctrl+Alt+V` by default), the plugin can automatically detect the programming language and insert it into the opening fence (e.g. ````python`), depending on settings. Can be turned on in the settings.
+
+**List of languages** is completely customizable. Just input them one per line. languages higher in the list have higher priority when multiple matches are found. Case-insensitive.
+
+**Search language code in…** setting determines where to look for the language name. Options:
+- `Note name` — the filename of the current note
+- `Parent folder name` — the name of the folder containing the note
+- `Nearest to root ancestor folder name` — walks up the folder tree from root, stops at first match
+- `Tags` — tags in the note body and frontmatter. Supports nested tags (e.g. `#languages/python`).
+
+##### Example
+
+1. You have a note `python-scripts.md` in folder `Projects`
+2. Custom language list: `python`, `javascript`, `typescript`
+3. Search location: `Note name`
+4. Press `Ctrl+Alt+V` → plugin detects `python` in the filename
+5. Pastes: ````python ... ````
+
+### Other Features
+
+- **Disable TAB key indentation**. Turns off ability to use Tab key for indentation (also disables `Shift+Tab`)
+- **Copy Inline Code on Double-Click**. Copy content of inline code on double-click
 - **Bulk Content Copy**: Copy content from multiple files at once using context menu or tag-based selection
-- **Double-Click Code Copy**: Quick copy of inline code content with double-click (when enabled)
-
-### New options in settings
-
-- Turn off TAB key indentation (`True` or `False`)
-- Copy inline code on double click (`True` or `False`)
-- Use contextual code block language (`True` or `False`)
-    - Search language code in... (`Note name`, `Parent folder name`, `Nearest to root folder`)
-    - Custom language list
-- Turn on "Copy content of files in folder/tag" feature (`True` or `False`)
-    - Adds "Copy content" button to file context menu for copying content from multiple files/folders
-    - Adds `[Copy all notes with tag…]` command for copying content from all notes with specific tag
 
 # Installation
 Install the BRAT Plugin from Obsidian Community Plugins or from the [GitHub repository](https://github.com/TfTHacker/obsidian42-brat).

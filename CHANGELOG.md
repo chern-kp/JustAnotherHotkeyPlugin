@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## [1.1] - 2026-07-07
+### Added
+- **Contextual Code Block Language** feature overhaul:
+  - New search location: `Tags` — detects language from note body tags and frontmatter
+  - Support for nested tags (`#languages/python`) with priority on the most specific (last) subtag
+  - Redesigned settings UI: 6-row textarea, "Clear all" and "Reset to default" buttons with two-click confirmation
+  - Default language list: `python`, `javascript`, `typescript`, `markdown`, `html`
+- `Select Section` command (`Alt+H`) — progressive selection: first press selects current section, second press expands to include child sections
+- `Select Section Upward` command (`Alt+Shift+H`) — progressive selection upward to parent sections
+### Changed
+- Default hotkeys for section selection changed to `Alt+Shift+ArrowDown` / `Alt+Shift+ArrowUp`
+- Default hotkeys for "Move to Next/Previous Heading Level" changed to `Alt+1-6` / `Alt+Shift+1-6`
+- Default hotkeys for line commands and heading navigation changed to use `Alt` modifier consistently
+- Merged "Select Current Heading" and "Select Current and Child Headings" into single progressive `Select Section` command
+- `Turn off TAB key indentation` setting now also disables `Shift+Tab`
+- Standardized terminology: "Section" instead of "Heading" in command names
+### Fixed
+- `Select All Current Level Sections` command now selects correct ranges
+- `Copy content` no longer attempts to read binary files (images, PDFs) — only `.md` files are copied
+- `Move Section Up` and `Move Section Down` actions now performed in 1 step, instead of 2 steps - important for undo/redo.
+- Internal code improvements.
+
 ## [1.0.12.1] - 2025-07-23
 ### Changed
 - `[Copy all notes with tag…]` command now works with nested tags (`#tag1/tag2`)

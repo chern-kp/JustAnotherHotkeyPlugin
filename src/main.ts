@@ -61,6 +61,9 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		const tabKeymap = Prec.highest(keymap.of([{
 			key: 'Tab',
 			run: this.handleTabKey.bind(this)
+		}, {
+			key: 'Shift-Tab',
+			run: this.handleTabKey.bind(this)
 		}]));
 		this.registerEditorExtension([tabKeymap]);
 

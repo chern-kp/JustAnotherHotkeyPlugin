@@ -1,6 +1,8 @@
 # CHANGELOG
 
 ## [1.1.0] - 2026-07-07
+### Changed
+- Project renamed to "Just Another Hotkey Addon" (from "Just Another Hotkey Plugin")
 ### Added
 - **Contextual Code Block Language** feature overhaul:
   - New search location: `Tags` — detects language from note body tags and frontmatter

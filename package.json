@@ -1,5 +1,5 @@
 {
-	"name": "just-another-hotkey-plugin",
+	"name": "just-another-hotkey-addon",
 	"version": "1.1.0",
 	"description": "New useful hotkeys for text editing and several additional features",
 	"main": "src/main.js",

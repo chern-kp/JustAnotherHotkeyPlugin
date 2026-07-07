@@ -1,6 +1,6 @@
-# JustAnotherHotkeyPlugin
+# JustAnotherHotkeyAddon
 
-**Just Another Hotkey Plugin** is an Obsidian plugin that adds new useful hotkeys for text editing, text selection, navigation and several additional features that obsidian powerusers could find useful.
+**Just Another Hotkey Addon** is an Obsidian plugin that adds new useful hotkeys for text editing, text selection, navigation and several additional features that obsidian powerusers could find useful.
 
 >I continue to work on this plugin and add new features, so I'm happy to get any suggestions or feedback. Initially created to add features to Obsidian that I felt would be useful for my daily Obsidian usage, but I hope it can also be useful to others.
 
@@ -82,7 +82,7 @@ Install the BRAT Plugin from Obsidian Community Plugins or from the [GitHub repo
 
 1. Navigate to Settings > BRAT > Beta Plugin List
 2. Click "Add Beta plugin"
-3. Enter `https://github.com/chern-kp/JustAnotherHotkeyPlugin`
+3. Enter `https://github.com/chern-kp/JustAnotherHotkeyAddon`
 4. Click "Add Plugin"
 5. Enable the plugin to begin using it
 
@@ -93,4 +93,4 @@ Update the plugin by either:
 * Using the BRAT settings panel in Obsidian
 
 # Support
-This plugin is in active development. If you have any feature requests or bug reports, please open an issue on the [GitHub repository](https://github.com/chern-kp/JustAnotherHotkeyPlugin).
+This plugin is in active development. If you have any feature requests or bug reports, please open an issue on the [GitHub repository](https://github.com/chern-kp/JustAnotherHotkeyAddon).

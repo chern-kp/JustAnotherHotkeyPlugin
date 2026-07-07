@@ -1,11 +1,11 @@
 import { App, Menu, TFile, TFolder, Notice } from 'obsidian';
-import JustAnotherHotkeyPlugin from '../main';
+import JustAnotherHotkeyAddon from '../main';
 
 export class CopyContentFeature {
     // Reference to Obsidian app instance, we use it to access obsidian vault API
     private app: App;
     // Reference to the main plugin instance, we use it to access plugin settings and methods
-    private plugin: JustAnotherHotkeyPlugin;
+    private plugin: JustAnotherHotkeyAddon;
     // Handler for file explorer context menu, we use it to register the context menu item
     private fileMenuHandler: ((...args: any[]) => void) | null = null;
     // Handler for multiple files selection menu
@@ -13,7 +13,7 @@ export class CopyContentFeature {
     // Flag to track if menu is already registered
     private isMenuRegistered = false;
 
-    constructor(app: App, plugin: JustAnotherHotkeyPlugin) {
+    constructor(app: App, plugin: JustAnotherHotkeyAddon) {
         this.app = app;
         this.plugin = plugin;
     }

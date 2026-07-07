@@ -1,12 +1,12 @@
 import { Editor } from 'obsidian';
-import JustAnotherHotkeyPlugin from './main';
+import JustAnotherHotkeyAddon from './main';
 
-export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
+export function registerCommands(plugin: JustAnotherHotkeyAddon) {
     //SECTION - Section commands
 
     /**
      * NOTE - Select to the End of Current Section command (Alt + Shift + ArrowDown)
-     * @see {@link JustAnotherHotkeyPlugin.selectToEndOfCurrentHeading}
+     * @see {@link JustAnotherHotkeyAddon.selectToEndOfCurrentHeading}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -25,7 +25,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
      * NOTE - Select to the Beginning of Current Section command (Alt + Shift + ArrowUp)
-     * @see {@link JustAnotherHotkeyPlugin.selectToBeginningOfCurrentHeading}
+     * @see {@link JustAnotherHotkeyAddon.selectToBeginningOfCurrentHeading}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -45,7 +45,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     /**
      * NOTE - Select Section command (Alt + H).
      * First press selects the current section; second press expands to include child sections.
-     * @see {@link JustAnotherHotkeyPlugin.selectHeadingProgressive}
+     * @see {@link JustAnotherHotkeyAddon.selectHeadingProgressive}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -65,7 +65,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     /**
      * NOTE - Select Section Upward command (Alt + Shift + H).
      * First press selects the current section with its parent; repeated presses expand further upward.
-     * @see {@link JustAnotherHotkeyPlugin.selectHeadingUpwardProgressive}
+     * @see {@link JustAnotherHotkeyAddon.selectHeadingUpwardProgressive}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -84,7 +84,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
      * NOTE - Select All Current Level Sections command (Mod + Alt + PageDown)
-     * @see {@link JustAnotherHotkeyPlugin.selectAllCurrentLevelHeadings}
+     * @see {@link JustAnotherHotkeyAddon.selectAllCurrentLevelHeadings}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -104,7 +104,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
      * NOTE - "Move to Next Heading Level 1-6" commands (Alt + 1, Alt + 2 ... Alt + 6)
-     * @see {@link JustAnotherHotkeyPlugin.moveToNextHeadingOfLevel}
+     * @see {@link JustAnotherHotkeyAddon.moveToNextHeadingOfLevel}
      * @param editor - The editor to make changes in.
      * @param level - The level of the heading to move to.
      */
@@ -125,7 +125,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
         /**
          * NOTE - "Move to Previous Heading Level 1-6" commands (Alt + Shift + 1, Alt + Shift + 2 ... Alt + Shift + 6)
-         * @see {@link JustAnotherHotkeyPlugin.moveToPreviousHeadingOfLevel}
+         * @see {@link JustAnotherHotkeyAddon.moveToPreviousHeadingOfLevel}
          * @param editor - The editor to make changes in.
          * @param level - The level of the heading to move to.
          */
@@ -146,7 +146,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
      * NOTE - "Move Cursor to Next Heading" command (Mod + ~)
-     * @see {@link JustAnotherHotkeyPlugin.moveCursorToNextHeading}
+     * @see {@link JustAnotherHotkeyAddon.moveCursorToNextHeading}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -165,7 +165,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
      * NOTE - "Move Cursor to Previous Heading" command (Mod + Shift + ~)
-     * @see {@link JustAnotherHotkeyPlugin.moveCursorToPreviousHeading}
+     * @see {@link JustAnotherHotkeyAddon.moveCursorToPreviousHeading}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -184,7 +184,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
      * NOTE - "Move Section Up" command (Alt + PageUp)
-     * @see {@link JustAnotherHotkeyPlugin.moveHeadingUp}
+     * @see {@link JustAnotherHotkeyAddon.moveHeadingUp}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -203,7 +203,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
      * NOTE - "Move Section Down" command (Alt + PageDown)
-     * @see {@link JustAnotherHotkeyPlugin.moveHeadingDown}
+     * @see {@link JustAnotherHotkeyAddon.moveHeadingDown}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -225,7 +225,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
     //SECTION - Link commands
     /**
      * NOTE - "Select Link Display Text" command (Mod + \)
-     * @see {@link JustAnotherHotkeyPlugin.selectLinkDisplayText}
+     * @see {@link JustAnotherHotkeyAddon.selectLinkDisplayText}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -244,7 +244,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
      * NOTE - "Select Link Without Display Text" command (Mod + Shift + \)
-     * @see {@link JustAnotherHotkeyPlugin.selectLinkWithoutDisplayText}
+     * @see {@link JustAnotherHotkeyAddon.selectLinkWithoutDisplayText}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -263,7 +263,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
      * NOTE - "Select Link Content" command (Mod + Alt + \)
-     * @see {@link JustAnotherHotkeyPlugin.selectLinkContent}
+     * @see {@link JustAnotherHotkeyAddon.selectLinkContent}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -283,7 +283,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
      * NOTE - "Select Full Link" command (Mod + Shift + Alt + \)
-     * @see {@link JustAnotherHotkeyPlugin.selectFullLink}
+     * @see {@link JustAnotherHotkeyAddon.selectFullLink}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -303,7 +303,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
  * NOTE - "Paste as Code Block" command (Mod + Alt + V)
- * @see {@link JustAnotherHotkeyPlugin.pasteAsCodeBlock}
+ * @see {@link JustAnotherHotkeyAddon.pasteAsCodeBlock}
  * @param editor - The editor to make changes in.
  */
     plugin.addCommand({
@@ -322,7 +322,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
      * NOTE - "Select Current Line" command (Alt + L)
-     * @see {@link JustAnotherHotkeyPlugin.selectCurrentLine}
+     * @see {@link JustAnotherHotkeyAddon.selectCurrentLine}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -343,7 +343,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
      * NOTE - "Select Previous Line" command (Alt + Shift + L)
-     * @see {@link JustAnotherHotkeyPlugin.selectPreviousLine}
+     * @see {@link JustAnotherHotkeyAddon.selectPreviousLine}
      * @param editor - The editor to make changes in.
      */
     plugin.addCommand({
@@ -362,7 +362,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
  * NOTE - "Clear Selection from Current Line" command (Mod + Alt + L)
- * @see {@link JustAnotherHotkeyPlugin.clearSelectionFromCurrentLine}
+ * @see {@link JustAnotherHotkeyAddon.clearSelectionFromCurrentLine}
  * @param editor - The editor to make changes in.
  */
     plugin.addCommand({
@@ -381,7 +381,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
  * NOTE - "Select to Line Start" command (Alt + <)
- * @see {@link JustAnotherHotkeyPlugin.selectToLineStart}
+ * @see {@link JustAnotherHotkeyAddon.selectToLineStart}
  * @param editor - The editor to make changes in.
  */
     plugin.addCommand({
@@ -400,7 +400,7 @@ export function registerCommands(plugin: JustAnotherHotkeyPlugin) {
 
     /**
  * NOTE - "Select to Line End" command (Alt + >)
- * @see {@link JustAnotherHotkeyPlugin.selectToLineEnd}
+ * @see {@link JustAnotherHotkeyAddon.selectToLineEnd}
  * @param editor - The editor to make changes in.
  */
     plugin.addCommand({

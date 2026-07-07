@@ -4,12 +4,12 @@ import { registerCommands } from './hotkeys';
 import { keymap } from '@codemirror/view';
 import { Prec } from '@codemirror/state';
 //Imports of other files of the plugin
-import { JustAnotherHotkeyPluginSettingTab } from './settings';
+import { JustAnotherHotkeyAddonSettingTab } from './settings';
 import { CopyContentFeature } from './features/copyContentFeature';
 import { TagSuggestModal } from './ui/modals/tagSuggestModal';
 
 //ANCHOR - Settings Interface - We use it to use values from the settings tab in code.
-interface JustAnotherHotkeyPluginSettings {
+interface JustAnotherHotkeyAddonSettings {
 	/** When enabled, pressing TAB key will not indent the current line */
 	disableTabIndentation: boolean;
 	/** When enabled, double-clicking on inline code blocks will copy their content */
@@ -25,7 +25,7 @@ interface JustAnotherHotkeyPluginSettings {
 }
 
 //ANCHOR - Default Settings - Write the default values for the settings here.
-const DEFAULT_SETTINGS: JustAnotherHotkeyPluginSettings = {
+const DEFAULT_SETTINGS: JustAnotherHotkeyAddonSettings = {
 	disableTabIndentation: false,
 	copyInlineCodeOnDoubleClick: false,
 	useContextualCodeBlockLanguage: false,
@@ -35,9 +35,9 @@ const DEFAULT_SETTINGS: JustAnotherHotkeyPluginSettings = {
 }
 
 
-export default class JustAnotherHotkeyPlugin extends Plugin {
+export default class JustAnotherHotkeyAddon extends Plugin {
 
-	settings!: JustAnotherHotkeyPluginSettings;
+	settings!: JustAnotherHotkeyAddonSettings;
 	copyContentFeature: CopyContentFeature | null = null;
 
 	/**
@@ -75,7 +75,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 			this.copyContentFeature.initialize();
 		}
 
-		this.addSettingTab(new JustAnotherHotkeyPluginSettingTab(this.app, this));
+		this.addSettingTab(new JustAnotherHotkeyAddonSettingTab(this.app, this));
 
 		// Register command for copying notes by tag
 		this.registerCopyNotesByTagCommand();

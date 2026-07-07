@@ -1,0 +1,5 @@
+/* Two-click confirmation button — red highlight state */
+.jahp-confirm-mode {
+    background-color: var(--color-red, #e93147) !important;
+    color: var(--text-on-accent, #fff) !important;
+}

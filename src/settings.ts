@@ -107,8 +107,7 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                     confirmMode = false;
                     if (resetTimer) clearTimeout(resetTimer);
                     resetTimer = null;
-                    btn.extraSettingsEl.style.backgroundColor = '';
-                    btn.extraSettingsEl.style.color = '';
+                    btn.extraSettingsEl.classList.remove('jahp-confirm-mode');
                     btn.setIcon('trash');
                     btn.setTooltip('Clear all');
                 };
@@ -118,8 +117,7 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                 btn.onClick(async () => {
                     if (!confirmMode) {
                         confirmMode = true;
-                        btn.extraSettingsEl.style.backgroundColor = 'var(--color-red, #e93147)';
-                        btn.extraSettingsEl.style.color = '#fff';
+                        btn.extraSettingsEl.classList.add('jahp-confirm-mode');
                         btn.setIcon('trash');
                         btn.setTooltip('Click again to confirm clear');
                         resetTimer = setTimeout(() => cancelConfirm(), 4000);
@@ -139,8 +137,7 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                     confirmMode = false;
                     if (resetTimer) clearTimeout(resetTimer);
                     resetTimer = null;
-                    btn.extraSettingsEl.style.backgroundColor = '';
-                    btn.extraSettingsEl.style.color = '';
+                    btn.extraSettingsEl.classList.remove('jahp-confirm-mode');
                     btn.setIcon('reset');
                     btn.setTooltip('Reset to default');
                 };
@@ -150,8 +147,7 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
                 btn.onClick(async () => {
                     if (!confirmMode) {
                         confirmMode = true;
-                        btn.extraSettingsEl.style.backgroundColor = 'var(--color-red, #e93147)';
-                        btn.extraSettingsEl.style.color = '#fff';
+                        btn.extraSettingsEl.classList.add('jahp-confirm-mode');
                         btn.setIcon('reset');
                         btn.setTooltip('Click again to confirm reset');
                         resetTimer = setTimeout(() => cancelConfirm(), 4000);

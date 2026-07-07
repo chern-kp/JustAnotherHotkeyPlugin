@@ -446,34 +446,60 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		case 'tags': {
 			const cache = this.app.metadataCache.getFileCache(activeFile);
 			if (cache) {
-				// Collect tags from note body
-				const bodyTags: string[] = [];
+				// Collect raw tags from note body (format "#tag/subtag")
+				const rawTags: string[] = [];
 				if (cache.tags) {
 					for (const tagObj of cache.tags) {
-						bodyTags.push(tagObj.tag.startsWith('#') ? tagObj.tag.substring(1) : tagObj.tag);
+						rawTags.push(tagObj.tag.startsWith('#') ? tagObj.tag.substring(1) : tagObj.tag);
 					}
 				}
 
-				// Collect tags from frontmatter (can be string, array, or undefined)
-				const fmTags: string[] = [];
+				// Collect raw tags from frontmatter (can be string, array, or undefined)
 				if (cache.frontmatter) {
 					const raw = cache.frontmatter.tags || cache.frontmatter.tag;
 					if (typeof raw === 'string') {
 						const clean = raw.startsWith('#') ? raw.substring(1) : raw;
-						fmTags.push(clean);
+						rawTags.push(clean);
 					} else if (Array.isArray(raw)) {
 						for (const t of raw) {
 							if (typeof t === 'string') {
 								const clean = t.startsWith('#') ? t.substring(1) : t;
-								fmTags.push(clean);
+								rawTags.push(clean);
 							}
 						}
 					}
 				}
 
-				// Combine all tags into one string and search for language match
-				const allTagsText = [...bodyTags, ...fmTags].join(' ');
-				foundLanguage = findLanguageMatch(allTagsText);
+				// Split each tag by "/" and group segments by depth from the end.
+				const depthMap = new Map<number, string[]>();
+				let maxDepth = 0;
+
+				for (const tag of rawTags) {
+					const segments = tag.split('/');
+					for (let i = 0; i < segments.length; i++) {
+						const depthFromEnd = segments.length - 1 - i;
+						if (!depthMap.has(depthFromEnd)) {
+							depthMap.set(depthFromEnd, []);
+						}
+						depthMap.get(depthFromEnd)!.push(segments[i]);
+					}
+					if (segments.length - 1 > maxDepth) {
+						maxDepth = segments.length - 1;
+					}
+				}
+
+				// Search from most specific (depth 0) to least specific (maxDepth)
+				for (let depth = 0; depth <= maxDepth; depth++) {
+					const segments = depthMap.get(depth);
+					if (segments && segments.length > 0) {
+						const text = segments.join(' ');
+						const match = findLanguageMatch(text);
+						if (match) {
+							foundLanguage = match;
+							break;
+						}
+					}
+				}
 			}
 			break;
 		}

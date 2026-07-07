@@ -169,7 +169,7 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	private registerCopyNotesByTagCommand(): void {
 		this.addCommand({
 			id: 'copy-notes-by-tag',
-			name: '[Copy all notes with tag…]',
+			name: 'Copy all notes with tag…',
 			checkCallback: (checking: boolean) => {
 				// Command only available if feature is enabled
 				if (!this.settings.copyContentFeature) return false;

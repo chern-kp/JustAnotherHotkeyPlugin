@@ -7,9 +7,9 @@ export class CopyContentFeature {
     // Reference to the main plugin instance, we use it to access plugin settings and methods
     private plugin: JustAnotherHotkeyPlugin;
     // Handler for file explorer context menu, we use it to register the context menu item
-    private fileMenuHandler: ((menu: Menu, file: TFile | TFolder) => void) | null = null;
+    private fileMenuHandler: ((...args: any[]) => void) | null = null;
     // Handler for multiple files selection menu
-    private filesMenuHandler: ((menu: Menu, files: (TFile | TFolder)[]) => void) | null = null;
+    private filesMenuHandler: ((...args: any[]) => void) | null = null;
     // Flag to track if menu is already registered
     private isMenuRegistered = false;
 
@@ -166,21 +166,21 @@ export class CopyContentFeature {
         this.app.workspace.on('files-menu', this.filesMenuHandler);
     }
 
-    //Helper method to get all files from selection (including files in folders)
+    //Helper method to get all markdown files from selection (including files in folders)
     private getAllFilesFromSelection(items: (TFile | TFolder)[]): TFile[] {
         const result: TFile[] = [];
 
-        // Get all files in the vault once for efficiency
-        const allFiles = this.app.vault.getFiles();
+        // Get only markdown files — skip images, PDFs, and other binary files
+        const allFiles = this.app.vault.getMarkdownFiles();
 
-        // First add all directly selected files
+        // Add directly selected markdown files
         for (const item of items) {
-            if (item instanceof TFile) {
+            if (item instanceof TFile && item.extension === 'md') {
                 result.push(item);
             }
         }
 
-        // Then add all files from selected folders
+        // Add all markdown files from selected folders
         const selectedFolders = items.filter(item => item instanceof TFolder) as TFolder[];
         for (const folder of selectedFolders) {
             const filesInFolder = allFiles

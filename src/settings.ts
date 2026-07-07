@@ -98,17 +98,84 @@ export class JustAnotherHotkeyPluginSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Custom language list')
-            .setDesc('Enter programming languages, one per line. Languages higher in the list have higher priority when auto-detection matches several candidates at once.')
-            .addTextArea(text => text
-                .setValue(this.plugin.settings.codeBoxLanguages.join('\n'))
-                .setDisabled(!this.plugin.settings.useContextualCodeBlockLanguage)
-                .onChange(async (value) => {
-                    this.plugin.settings.codeBoxLanguages = value
-                        .split('\n')
-                        .map(lang => lang.trim())
-                        .filter(lang => lang.length > 0);
+            .setDesc('Enter programming languages, one per line. Languages higher in the list have higher priority when auto-detection matches several candidates at once. Ignores case.')
+            .addExtraButton(btn => {
+                let confirmMode = false;
+                let resetTimer: ReturnType<typeof setTimeout> | null = null;
+
+                const cancelConfirm = () => {
+                    confirmMode = false;
+                    if (resetTimer) clearTimeout(resetTimer);
+                    resetTimer = null;
+                    btn.extraSettingsEl.style.backgroundColor = '';
+                    btn.extraSettingsEl.style.color = '';
+                    btn.setIcon('trash');
+                    btn.setTooltip('Clear all');
+                };
+
+                btn.setIcon('trash');
+                btn.setTooltip('Clear all');
+                btn.onClick(async () => {
+                    if (!confirmMode) {
+                        confirmMode = true;
+                        btn.extraSettingsEl.style.backgroundColor = 'var(--color-red, #e93147)';
+                        btn.extraSettingsEl.style.color = '#fff';
+                        btn.setIcon('trash');
+                        btn.setTooltip('Click again to confirm clear');
+                        resetTimer = setTimeout(() => cancelConfirm(), 4000);
+                        return;
+                    }
+                    cancelConfirm();
+                    this.plugin.settings.codeBoxLanguages = [];
                     await this.plugin.saveSettings();
-                }));
-//!SECTION - Contextual Code Block Language
-}
+                    this.display();
+                });
+            })
+            .addExtraButton(btn => {
+                let confirmMode = false;
+                let resetTimer: ReturnType<typeof setTimeout> | null = null;
+
+                const cancelConfirm = () => {
+                    confirmMode = false;
+                    if (resetTimer) clearTimeout(resetTimer);
+                    resetTimer = null;
+                    btn.extraSettingsEl.style.backgroundColor = '';
+                    btn.extraSettingsEl.style.color = '';
+                    btn.setIcon('reset');
+                    btn.setTooltip('Reset to default');
+                };
+
+                btn.setIcon('reset');
+                btn.setTooltip('Reset to default');
+                btn.onClick(async () => {
+                    if (!confirmMode) {
+                        confirmMode = true;
+                        btn.extraSettingsEl.style.backgroundColor = 'var(--color-red, #e93147)';
+                        btn.extraSettingsEl.style.color = '#fff';
+                        btn.setIcon('reset');
+                        btn.setTooltip('Click again to confirm reset');
+                        resetTimer = setTimeout(() => cancelConfirm(), 4000);
+                        return;
+                    }
+                    cancelConfirm();
+                    this.plugin.settings.codeBoxLanguages = ['python', 'javascript', 'typescript', 'markdown', 'html'];
+                    await this.plugin.saveSettings();
+                    this.display();
+                });
+            })
+            .addTextArea(text => {
+                text
+                    .setValue(this.plugin.settings.codeBoxLanguages.join('\n'))
+                    .setDisabled(!this.plugin.settings.useContextualCodeBlockLanguage)
+                    .onChange(async (value) => {
+                        this.plugin.settings.codeBoxLanguages = value
+                            .split('\n')
+                            .map(lang => lang.trim())
+                            .filter(lang => lang.length > 0);
+                        await this.plugin.saveSettings();
+                    });
+                text.inputEl.rows = 6;
+            });
+        //!SECTION - Contextual Code Block Language
+    }
 }

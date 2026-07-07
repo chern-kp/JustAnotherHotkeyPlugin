@@ -30,7 +30,7 @@ const DEFAULT_SETTINGS: JustAnotherHotkeyPluginSettings = {
 	copyInlineCodeOnDoubleClick: false,
 	useContextualCodeBlockLanguage: false,
 	languageSearchLocation: 'noteName',
-	codeBoxLanguages: [],
+	codeBoxLanguages: ['python', 'javascript', 'typescript', 'markdown', 'html'],
 	copyContentFeature: true,
 }
 
@@ -443,10 +443,40 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 				}
 				break;
 
-			case 'tags':
-				// TODO - Implement this
-				console.log('todo');
-				break;
+		case 'tags': {
+			const cache = this.app.metadataCache.getFileCache(activeFile);
+			if (cache) {
+				// Collect tags from note body
+				const bodyTags: string[] = [];
+				if (cache.tags) {
+					for (const tagObj of cache.tags) {
+						bodyTags.push(tagObj.tag.startsWith('#') ? tagObj.tag.substring(1) : tagObj.tag);
+					}
+				}
+
+				// Collect tags from frontmatter (can be string, array, or undefined)
+				const fmTags: string[] = [];
+				if (cache.frontmatter) {
+					const raw = cache.frontmatter.tags || cache.frontmatter.tag;
+					if (typeof raw === 'string') {
+						const clean = raw.startsWith('#') ? raw.substring(1) : raw;
+						fmTags.push(clean);
+					} else if (Array.isArray(raw)) {
+						for (const t of raw) {
+							if (typeof t === 'string') {
+								const clean = t.startsWith('#') ? t.substring(1) : t;
+								fmTags.push(clean);
+							}
+						}
+					}
+				}
+
+				// Combine all tags into one string and search for language match
+				const allTagsText = [...bodyTags, ...fmTags].join(' ');
+				foundLanguage = findLanguageMatch(allTagsText);
+			}
+			break;
+		}
 		}
 		return foundLanguage;
 	}

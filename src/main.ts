@@ -45,7 +45,6 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 	 */
 	async onload() {
 		await this.loadSettings();
-		console.log('Settings loaded:', this.settings);
 		registerCommands(this); //! for hotkeys
 
 		/**
@@ -216,14 +215,12 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 					}
 
 					const tags = Array.from(tagSet).sort();
-					console.log('Available tags:', tags);
 
 					// Show tag selection modal
 					if (tags.length > 0) {
 						new TagSuggestModal(this.app, tags, async (selectedTag) => {
 							// Find all related tags (parent tag and its subtags)
 							const relatedTags = this.findRelatedTags(selectedTag, tags);
-							console.log('Selected tag and related subtags:', relatedTags);
 
 							// Get all files with the selected tag or any of its subtags
 							const filesWithTag = files.filter(file => {
@@ -437,7 +434,6 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 				for (let i = 0; i < pathComponents.length - 1; i++) {
 					foundLanguage = findLanguageMatch(pathComponents[i]);
 					if (foundLanguage) {
-						console.log(`Found language in ancestor folder: ${pathComponents[i]}`);
 						break;
 					}
 				}

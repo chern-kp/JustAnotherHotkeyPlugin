@@ -77,20 +77,6 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 
 		this.addSettingTab(new JustAnotherHotkeyPluginSettingTab(this.app, this));
 
-		//NOTE - Handles editor state changes to keep copy buttons visibility and position.  Without it, copy buttons would be static and misaligned with content.
-		this.registerEvent(
-			this.app.workspace.on('editor-change', () => {
-				if (this.settings.copyContentFeature) {
-					if (!this.copyContentFeature) {
-						this.copyContentFeature = new CopyContentFeature(this.app, this);
-					}
-					this.copyContentFeature.initialize();
-				} else {
-					this.copyContentFeature = null; // Cleanup if feature is disabled
-				}
-			})
-		);
-
 		// Register command for copying notes by tag
 		this.registerCopyNotesByTagCommand();
 	}

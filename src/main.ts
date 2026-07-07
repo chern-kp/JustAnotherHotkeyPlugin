@@ -1112,16 +1112,20 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		const currentBlockLines = currentBlockWithEnding.split('\n').length - 1;
 
 		// Perform the swap
-		editor.replaceRange(
-			'',
-			{ line: targetHeadingLine, ch: 0 },
-			{ line: currentBlockEnd, ch: 0 }
-		);
-
-		editor.replaceRange(
-			currentBlockWithEnding + targetBlockWithEnding,
-			{ line: targetHeadingLine, ch: 0 }
-		);
+		editor.transaction({
+			changes: [
+				{
+					from: { line: targetHeadingLine, ch: 0 },
+					to: { line: currentBlockEnd, ch: 0 },
+					text: ''
+				},
+				{
+					from: { line: targetHeadingLine, ch: 0 },
+					to: { line: targetHeadingLine, ch: 0 },
+					text: currentBlockWithEnding + targetBlockWithEnding
+				}
+			]
+		});
 
 		// Calculate new cursor position
 		const newLine = targetHeadingLine + cursorOffset.lines;
@@ -1242,16 +1246,20 @@ export default class JustAnotherHotkeyPlugin extends Plugin {
 		const currentBlockLines = currentBlockWithEnding.split('\n').length - 1;
 
 		// Perform the swap
-		editor.replaceRange(
-			'',
-			{ line: currentHeadingLine, ch: 0 },
-			{ line: targetBlockEnd, ch: 0 }
-		);
-
-		editor.replaceRange(
-			targetBlockWithEnding + currentBlockWithEnding,
-			{ line: currentHeadingLine, ch: 0 }
-		);
+		editor.transaction({
+			changes: [
+				{
+					from: { line: currentHeadingLine, ch: 0 },
+					to: { line: targetBlockEnd, ch: 0 },
+					text: ''
+				},
+				{
+					from: { line: currentHeadingLine, ch: 0 },
+					to: { line: currentHeadingLine, ch: 0 },
+					text: targetBlockWithEnding + currentBlockWithEnding
+				}
+			]
+		});
 
 		// Calculate new cursor position
 		const newLine = currentHeadingLine + targetBlockLines + cursorOffset.lines;

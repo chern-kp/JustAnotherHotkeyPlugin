@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [1.1] - 2026-07-07
+## [1.1.0] - 2026-07-07
 ### Added
 - **Contextual Code Block Language** feature overhaul:
   - New search location: `Tags` — detects language from note body tags and frontmatter

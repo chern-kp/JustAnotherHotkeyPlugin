@@ -1,5 +1,5 @@
 # vscode
-.vscode 
+.vscode
 
 # Intellij
 *.iml
@@ -24,6 +24,5 @@ data.json
 /.eslintignore
 /.eslintrc
 /main.js
-/package-lock.json
 /version-bump.mjs
 .npmrc

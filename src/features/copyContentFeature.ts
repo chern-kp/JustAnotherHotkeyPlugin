@@ -7,9 +7,9 @@ export class CopyContentFeature {
     // Reference to the main plugin instance, we use it to access plugin settings and methods
     private plugin: JustAnotherHotkeyAddon;
     // Handler for file explorer context menu, we use it to register the context menu item
-    private fileMenuHandler: ((...args: any[]) => void) | null = null;
+    private fileMenuHandler: ((...args: unknown[]) => void) | null = null;
     // Handler for multiple files selection menu
-    private filesMenuHandler: ((...args: any[]) => void) | null = null;
+    private filesMenuHandler: ((...args: unknown[]) => void) | null = null;
     // Flag to track if menu is already registered
     private isMenuRegistered = false;
 
@@ -102,7 +102,9 @@ export class CopyContentFeature {
 
     //Registers context menu item in file explorer when current file is selected
     private registerFileExplorerContextMenu(): void {
-        this.fileMenuHandler = (menu: Menu, file: TFile | TFolder) => {
+        this.fileMenuHandler = (...args: unknown[]) => {
+            const menu = args[0] as Menu;
+            const file = args[1] as TFile | TFolder;
             menu.addItem((item) => {
                 item
                     .setTitle('Copy content')
@@ -137,7 +139,9 @@ export class CopyContentFeature {
 
     //Registers context menu item in multiple files selection menu
     private registerFilesExplorerContextMenu(): void {
-        this.filesMenuHandler = (menu: Menu, files: (TFile | TFolder)[]) => {
+        this.filesMenuHandler = (...args: unknown[]) => {
+            const menu = args[0] as Menu;
+            const files = args[1] as (TFile | TFolder)[];
             menu.addItem((item) => {
                 item
                     .setTitle('Copy content')
@@ -181,7 +185,7 @@ export class CopyContentFeature {
         }
 
         // Add all markdown files from selected folders
-        const selectedFolders = items.filter(item => item instanceof TFolder) as TFolder[];
+        const selectedFolders = items.filter(item => item instanceof TFolder);
         for (const folder of selectedFolders) {
             const filesInFolder = allFiles
                 .filter(file => file.path.startsWith(folder.path + '/'));

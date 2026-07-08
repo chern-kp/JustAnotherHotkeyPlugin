@@ -84,6 +84,6 @@ export class TagSuggestModal extends FuzzySuggestModal<string> {
 
     // Handle tag selection
     onChooseItem(tag: string, evt: MouseEvent | KeyboardEvent) {
-        this.onChoose(tag);
+        void this.onChoose(tag);
     }
 }

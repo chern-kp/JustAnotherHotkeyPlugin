@@ -105,7 +105,7 @@ export class JustAnotherHotkeyAddonSettingTab extends PluginSettingTab {
 
                 const cancelConfirm = () => {
                     confirmMode = false;
-                    if (resetTimer) clearTimeout(resetTimer);
+                    if (resetTimer) window.clearTimeout(resetTimer);
                     resetTimer = null;
                     btn.extraSettingsEl.classList.remove('jaha-confirm-mode');
                     btn.setIcon('trash');
@@ -120,7 +120,7 @@ export class JustAnotherHotkeyAddonSettingTab extends PluginSettingTab {
                         btn.extraSettingsEl.classList.add('jaha-confirm-mode');
                         btn.setIcon('trash');
                         btn.setTooltip('Click again to confirm clear');
-                        resetTimer = setTimeout(() => cancelConfirm(), 4000);
+                        resetTimer = window.setTimeout(() => cancelConfirm(), 4000);
                         return;
                     }
                     cancelConfirm();
@@ -135,7 +135,7 @@ export class JustAnotherHotkeyAddonSettingTab extends PluginSettingTab {
 
                 const cancelConfirm = () => {
                     confirmMode = false;
-                    if (resetTimer) clearTimeout(resetTimer);
+                    if (resetTimer) window.clearTimeout(resetTimer);
                     resetTimer = null;
                     btn.extraSettingsEl.classList.remove('jaha-confirm-mode');
                     btn.setIcon('reset');
@@ -150,7 +150,7 @@ export class JustAnotherHotkeyAddonSettingTab extends PluginSettingTab {
                         btn.extraSettingsEl.classList.add('jaha-confirm-mode');
                         btn.setIcon('reset');
                         btn.setTooltip('Click again to confirm reset');
-                        resetTimer = setTimeout(() => cancelConfirm(), 4000);
+                        resetTimer = window.setTimeout(() => cancelConfirm(), 4000);
                         return;
                     }
                     cancelConfirm();

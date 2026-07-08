@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-empty-interface */
+
 import { Editor, EditorPosition, Notice, Plugin } from 'obsidian';
 import { registerCommands } from './hotkeys';
 import { keymap } from '@codemirror/view';
@@ -95,7 +95,7 @@ export default class JustAnotherHotkeyAddon extends Plugin {
 	 * Loads the settings from the storage.
 	 */
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<JustAnotherHotkeyAddonSettings>);
 	}
 
 	/**
@@ -178,12 +178,13 @@ export default class JustAnotherHotkeyAddon extends Plugin {
 						// Collect tags from frontmatter (properties)
 						if (cache.frontmatter) {
 							// Tags in frontmatter can be in 'tags' field (array) or 'tag' field (string)
-							const frontmatterTags = cache.frontmatter.tags || cache.frontmatter.tag;
+							const fm = cache.frontmatter as Record<string, unknown>;
+							const frontmatterTags: unknown = fm.tags || fm.tag;
 
 							if (frontmatterTags) {
 								// Process array of tags
-								if (Array.isArray(frontmatterTags)) {
-									for (const tag of frontmatterTags) {
+								if (Array.isArray(frontmatterTags) && frontmatterTags.every(t => typeof t === 'string')) {
+									for (const tag of frontmatterTags as string[]) {
 										// Add # if missing
 										const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
 										tagSet.add(formattedTag);
@@ -222,7 +223,8 @@ export default class JustAnotherHotkeyAddon extends Plugin {
 
 									// Check tags in frontmatter (properties)
 									if (cache.frontmatter) {
-										const frontmatterTags = cache.frontmatter.tags || cache.frontmatter.tag;
+										const fm = cache.frontmatter as Record<string, unknown>;
+										const frontmatterTags = fm.tags || fm.tag;
 
 										if (frontmatterTags) {
 											// For array of tags
@@ -438,7 +440,8 @@ export default class JustAnotherHotkeyAddon extends Plugin {
 
 				// Collect raw tags from frontmatter (can be string, array, or undefined)
 				if (cache.frontmatter) {
-					const raw = cache.frontmatter.tags || cache.frontmatter.tag;
+					const fm = cache.frontmatter as Record<string, unknown>;
+					const raw = fm.tags || fm.tag;
 					if (typeof raw === 'string') {
 						const clean = raw.startsWith('#') ? raw.substring(1) : raw;
 						rawTags.push(clean);

@@ -602,56 +602,79 @@ export default class JustAnotherHotkeyAddon extends Plugin {
 	 * then compares the current selection.
 	 */
 	selectHeadingProgressive(editor: Editor) {
-		const cursor = editor.getCursor();
 		const lineCount = editor.lineCount();
 
-		// Determine which heading the cursor belongs to
-		let currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
-		if (currentHeadingLine === -1 || currentHeadingLine < cursor.line) {
-			currentHeadingLine = cursor.line;
-		}
+		// Use anchor (start of selection) as the reference point
+		const sel = editor.listSelections()[0];
+		const anchorLine = sel.anchor.line;
 
-		let currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+		let currentHeadingLine = anchorLine;
+		let currentHeadingLevel = this.getHeadingLevelAtLine(editor, anchorLine);
+
 		if (currentHeadingLevel === null) {
-			currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+			currentHeadingLine = this.findHeadingLine(editor, anchorLine, 'previous');
 			if (currentHeadingLine !== -1) {
 				currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
 			}
 		}
 
-		// Compute the heading‑only bounds (same logic as the old selectCurrentHeading)
-		let headingOnlyFromPos: EditorPosition;
-		let headingOnlyToPos: EditorPosition;
-		if (currentHeadingLine !== -1 && currentHeadingLevel !== null) {
-			let nextHeadingLine = this.findHeadingLine(editor, currentHeadingLine, 'next');
-			if (nextHeadingLine === -1) nextHeadingLine = lineCount;
-
-			headingOnlyFromPos = { line: currentHeadingLine, ch: 0 };
-			headingOnlyToPos = {
-				line: nextHeadingLine - 1,
-				ch: editor.getLine(nextHeadingLine - 1).length,
+		// Fallback when no heading is found
+		if (currentHeadingLine === -1 || currentHeadingLevel === null) {
+			const fromPos: EditorPosition = { line: 0, ch: 0 };
+			const toPos: EditorPosition = {
+				line: anchorLine,
+				ch: editor.getLine(anchorLine).length,
 			};
-		} else {
-			// No heading found - select from start of file to cursor line
-			headingOnlyFromPos = { line: 0, ch: 0 };
-			headingOnlyToPos = {
-				line: cursor.line,
-				ch: editor.getLine(cursor.line).length,
-			};
+			editor.setSelection(fromPos, toPos);
+			editor.scrollIntoView({ from: toPos, to: toPos }, true);
+			return;
 		}
 
-		// Check whether the current selection already matches the heading-only bounds
-		const sel = editor.listSelections()[0];
-		const anchorEq = sel.anchor.line === headingOnlyFromPos.line && sel.anchor.ch === headingOnlyFromPos.ch;
-		const headEq = sel.head.line === headingOnlyToPos.line && sel.head.ch === headingOnlyToPos.ch;
+		// Compute heading-only bounds (without child sections)
+		let headingOnlyNext = this.findHeadingLine(editor, currentHeadingLine, 'next');
+		if (headingOnlyNext === -1) headingOnlyNext = lineCount;
 
-		if (anchorEq && headEq) {
-			// Second press - expand to include child headings
-			this.selectHeadingWithChildren(editor);
+		const headingOnlyFrom: EditorPosition = { line: currentHeadingLine, ch: 0 };
+		const headingOnlyTo: EditorPosition = {
+			line: headingOnlyNext - 1,
+			ch: editor.getLine(headingOnlyNext - 1).length,
+		};
+
+		// Compute heading-with-children bounds
+		let childrenEndLine = lineCount;
+		for (let i = currentHeadingLine + 1; i < lineCount; i++) {
+			const level = this.getHeadingLevelAtLine(editor, i);
+			if (level !== null && level <= currentHeadingLevel) {
+				childrenEndLine = i;
+				break;
+			}
+		}
+
+		const childrenFrom: EditorPosition = { line: currentHeadingLine, ch: 0 };
+		const childrenTo: EditorPosition = {
+			line: childrenEndLine - 1,
+			ch: editor.getLine(childrenEndLine - 1).length,
+		};
+
+		// Check what the current selection matches
+		const matchesHeadingOnly =
+			sel.anchor.line === headingOnlyFrom.line && sel.anchor.ch === headingOnlyFrom.ch &&
+			sel.head.line === headingOnlyTo.line && sel.head.ch === headingOnlyTo.ch;
+
+		const matchesChildren =
+			sel.anchor.line === childrenFrom.line && sel.anchor.ch === childrenFrom.ch &&
+			sel.head.line === childrenTo.line && sel.head.ch === childrenTo.ch;
+
+		if (matchesHeadingOnly) {
+			// Second press — expand to include child sections
+			editor.setSelection(childrenFrom, childrenTo);
+			editor.scrollIntoView({ from: childrenTo, to: childrenTo }, true);
+		} else if (matchesChildren) {
+			// Third press — already at max, do nothing
 		} else {
-			// First press - select the heading only
-			editor.setSelection(headingOnlyFromPos, headingOnlyToPos);
-			editor.scrollIntoView({ from: headingOnlyToPos, to: headingOnlyToPos }, true);
+			// First press — select heading only
+			editor.setSelection(headingOnlyFrom, headingOnlyTo);
+			editor.scrollIntoView({ from: headingOnlyTo, to: headingOnlyTo }, true);
 			new Notice('Press Alt + H again to expand selection to include child sections');
 		}
 	}
@@ -694,17 +717,24 @@ export default class JustAnotherHotkeyAddon extends Plugin {
 	 * @param editor - The editor to make changes in.
 	 */
 	private selectHeadingWithChildren(editor: Editor) {
-		const cursor = editor.getCursor();
+		const sel = editor.listSelections()[0];
+		const anchorLine = sel.anchor.line;
 		const lineCount = editor.lineCount();
 
-		let currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
-		if (currentHeadingLine === -1 || currentHeadingLine < cursor.line) {
-			currentHeadingLine = cursor.line;
-		}
+		let currentHeadingLine = anchorLine;
+		let currentHeadingLevel = this.getHeadingLevelAtLine(editor, anchorLine);
 
-		const currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
 		if (currentHeadingLevel === null) {
-			currentHeadingLine = this.findHeadingLine(editor, cursor.line, 'previous');
+			currentHeadingLine = this.findHeadingLine(editor, anchorLine, 'previous');
+			if (currentHeadingLine !== -1) {
+				currentHeadingLevel = this.getHeadingLevelAtLine(editor, currentHeadingLine);
+			}
+		} else if (currentHeadingLine < anchorLine) {
+			const nearest = this.findHeadingLine(editor, anchorLine, 'previous');
+			if (nearest !== -1 && nearest >= currentHeadingLine) {
+				currentHeadingLine = nearest;
+				currentHeadingLevel = this.getHeadingLevelAtLine(editor, nearest);
+			}
 		}
 
 		if (currentHeadingLine !== -1) {

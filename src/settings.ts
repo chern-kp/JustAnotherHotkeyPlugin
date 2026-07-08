@@ -101,11 +101,11 @@ export class JustAnotherHotkeyAddonSettingTab extends PluginSettingTab {
             .setDesc('Enter programming languages, one per line. Languages higher in the list have higher priority when auto-detection matches several candidates at once. Ignores case.')
             .addExtraButton(btn => {
                 let confirmMode = false;
-                let resetTimer: ReturnType<typeof setTimeout> | null = null;
+                let resetTimer: number | null = null;
 
                 const cancelConfirm = () => {
                     confirmMode = false;
-                    if (resetTimer) window.clearTimeout(resetTimer);
+                    if (resetTimer !== null) window.clearTimeout(resetTimer);
                     resetTimer = null;
                     btn.extraSettingsEl.classList.remove('jaha-confirm-mode');
                     btn.setIcon('trash');
@@ -131,11 +131,11 @@ export class JustAnotherHotkeyAddonSettingTab extends PluginSettingTab {
             })
             .addExtraButton(btn => {
                 let confirmMode = false;
-                let resetTimer: ReturnType<typeof setTimeout> | null = null;
+                let resetTimer: number | null = null;
 
                 const cancelConfirm = () => {
                     confirmMode = false;
-                    if (resetTimer) window.clearTimeout(resetTimer);
+                    if (resetTimer !== null) window.clearTimeout(resetTimer);
                     resetTimer = null;
                     btn.extraSettingsEl.classList.remove('jaha-confirm-mode');
                     btn.setIcon('reset');

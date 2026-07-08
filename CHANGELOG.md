@@ -1,4 +1,7 @@
 # CHANGELOG
+## [1.1.1] - 2026-07-08
+### Changed
+- Internal code improvements
 
 ## [1.1.0] - 2026-07-07
 ### Changed

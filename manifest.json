@@ -1,8 +1,8 @@
 {
 	"id": "just-another-hotkey-addon",
 	"name": "Just Another Hotkey Addon",
-	"version": "1.1.0",
-	"minAppVersion": "1.1.0",
+	"version": "1.1.1",
+	"minAppVersion": "1.11.0",
 	"description": "New useful hotkeys for text editing and several additional features.",
 	"author": "chern-kp",
 	"authorUrl": "https://github.com/chern-kp",

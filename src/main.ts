@@ -51,7 +51,7 @@ export default class JustAnotherHotkeyAddon extends Plugin {
 		 * Registers a double-click event handler to copy inline code content.
 		 * Uses the {@link handleInlineCodeDoubleClick} function.
 		 */
-		this.registerDomEvent(document, 'dblclick', this.handleInlineCodeDoubleClick.bind(this));
+		this.registerDomEvent(window.document, 'dblclick', this.handleInlineCodeDoubleClick.bind(this));
 
 		/**
 		 * Registers an editor extension to handle the Tab key if setting is enabled.

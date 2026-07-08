@@ -310,7 +310,7 @@ export function registerCommands(plugin: JustAnotherHotkeyAddon) {
         id: 'paste-as-code-block',
         name: 'Paste as Code Block',
         editorCallback: (editor: Editor) => {
-            plugin.pasteAsCodeBlock(editor);
+            void plugin.pasteAsCodeBlock(editor);
         },
         hotkeys: [
             {

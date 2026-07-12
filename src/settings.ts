@@ -15,6 +15,28 @@ export class JustAnotherHotkeyAddonSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
 
+        // Open Obsidian native hotkeys page filtered by this plugin
+        const hotkeysLink = containerEl.createEl('a', {
+            text: 'Set Up or Change Hotkeys',
+            href: '#',
+            cls: 'jaha-hotkeys-link',
+        });
+        hotkeysLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Open settings and switch to Hotkeys tab
+            const setting = (this.app as any).setting;
+            setting.open();
+            setting.openTabById('hotkeys');
+            // Set filter to show only this plugin's hotkeys
+            setTimeout(() => {
+                const filterInput = setting.containerEl.querySelector('.search-input-container input') as HTMLInputElement | null;
+                if (filterInput) {
+                    filterInput.value = 'just-another-hotkey-addon';
+                    filterInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }, 150);
+        });
+
         //NOTE - New Settings Added Here
 
         new Setting(containerEl)

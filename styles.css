@@ -3,3 +3,9 @@
     background-color: var(--color-red, #e93147);
     color: var(--text-on-accent, #fff);
 }
+
+/* Link to open hotkey settings at the top of plugin settings page */
+.jaha-hotkeys-link {
+    display: inline-block;
+    margin-bottom: 16px;
+}
